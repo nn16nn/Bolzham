@@ -1,4 +1,4 @@
-const V = 'bolzham-v9';
+const V = 'bolzham-v10';
 const CORE = ['./', './index.html', './manifest.webmanifest',
               './icon-192.png', './icon-512.png', './icon-maskable.png'];
 

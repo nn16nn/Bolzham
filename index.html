@@ -211,10 +211,17 @@ a{color:var(--away)}
 
   <!-- БАПТАУ -->
   <section class="page" id="p-set">
+    <div class="card"><h3>ТІЛ</h3><div class="in">
+      <div style="display:flex;gap:6px">
+        <button class="chip" id="lang-kk" onclick="setLang('kk')">Қазақша</button>
+        <button class="chip" id="lang-ru" onclick="setLang('ru')">Русский</button>
+        <button class="chip" id="lang-en" onclick="setLang('en')">English</button>
+      </div>
+    </div></div>
     <div class="card"><h3>ДЕРЕККӨЗ</h3><div class="in">
       <div class="kv"><span>Ойын мен нәтиже</span><b class="sm">ESPN ашық API</b></div>
       <div class="kv"><span>Кэш</span><b class="sm" id="cachesize">—</b></div>
-      <div class="kv"><span>Нұсқа</span><b class="sm">v6.1</b></div>
+      <div class="kv"><span>Нұсқа</span><b class="sm">v7.0</b></div>
     </div></div>
     <div class="card"><h3>МОДЕЛЬ</h3><div class="in">
       <p class="sm mut" style="margin:0 0 10px">Пуассон + Диксон-Коулс түзетуі. Әр команданың соңғы 12 ойыны алынып, жаңа ойындарға көбірек салмақ беріледі. Одан шабуыл/қорғаныс күші, үй артықшылығы есептеліп, 0:0-ден 8:8-ге дейінгі барлық есеп ықтималдығы шығарылады.</p>
@@ -222,6 +229,13 @@ a{color:var(--away)}
       <input type="range" id="hfa" min="1" max="1.35" step="0.01" value="1.12" style="width:100%;accent-color:#2E6F4E">
       <div class="kv" style="margin-top:8px"><span>Талданатын ойын саны</span><b class="num" id="nmVal">12</b></div>
       <input type="range" id="nm" min="6" max="20" step="1" value="12" style="width:100%;accent-color:#2E6F4E">
+    </div></div>
+    <div class="card"><h3>ТІЛ</h3><div class="in">
+      <div style="display:flex;gap:6px">
+        <button class="chip" id="lang-kk" onclick="setLang('kk')">Қазақша</button>
+        <button class="chip" id="lang-ru" onclick="setLang('ru')">Русский</button>
+        <button class="chip" id="lang-en" onclick="setLang('en')">English</button>
+      </div>
     </div></div>
     <div class="card"><h3>ДЕРЕККӨЗ</h3><div class="in">
       <div class="kv" style="border:0"><span>Негізгі дереккөз</span>
@@ -320,12 +334,191 @@ const S={
 function ls(k,d){try{const v=localStorage.getItem(K+k);return v===null?d:JSON.parse(v)}catch(e){return d}}
 function save(k,v){try{localStorage.setItem(K+k,JSON.stringify(v))}catch(e){}}
 
+
+/* ══════════════════════════════════════════
+   ҮШ ТІЛ (v7.0) — бет қазақша жазылған, RU/EN сөздік арқылы ауыстырылады
+   ══════════════════════════════════════════ */
+function LANG(){return ls("lang","kk")}
+function TX(kk,ru,en){const L=LANG();return L==="ru"?ru:L==="en"?en:kk}
+const I18N={
+"футбол болжамы":["прогноз футбола","football forecast"],
+"Ойындар":["Матчи","Matches"],"Болжамдарым":["Мои прогнозы","My picks"],"Баптау":["Настройки","Settings"],
+"кеше":["вчера","yest"],"бүгін":["сегодня","today"],"ертең":["завтра","tomorrow"],
+"жс":["вс","Su"],"дс":["пн","Mo"],"сс":["вт","Tu"],"ср":["ср","We"],"бс":["чт","Th"],"жм":["пт","Fr"],"сб":["сб","Sa"],
+"Болатын":["Предстоящие","Upcoming"],"Аяқталған":["Завершённые","Finished"],"Бәрі":["Все","All"],
+"☆ барлық лига":["☆ все лиги","☆ all leagues"],
+"Лигалар":["Лиги","Leagues"],"Экспресс":["Экспресс","Parlay"],
+"болжам ›":["прогноз ›","forecast ›"],"ТІКЕЛЕЙ":["ЛАЙВ","LIVE"],"аяқ.":["зав.","end"],
+"Болжам":["Прогноз","Forecast"],"ҮЙ":["ДОМА","HOME"],"ҚОНАҚ":["ГОСТИ","AWAY"],
+"1 · үй жеңісі":["1 · победа хозяев","1 · home win"],"X · тең":["X · ничья","X · draw"],
+"2 · қонақ жеңісі":["2 · победа гостей","2 · away win"],
+"МОДЕЛЬ ТАҢДАУЫ":["ВЫБОР МОДЕЛИ","MODEL PICK"],
+"ЫҚТИМАЛ ЕСЕП":["ВЕРОЯТНЫЙ СЧЁТ","LIKELY SCORE"],
+"Ең ықтимал есеп":["Самый вероятный счёт","Most likely score"],
+"Күтілетін гол":["Ожидаемые голы","Expected goals"],
+"ҚОСЫМША НАРЫҚТАР":["ДОПОЛНИТЕЛЬНЫЕ РЫНКИ","EXTRA MARKETS"],
+"МОДЕЛЬ vs НАРЫҚ":["МОДЕЛЬ vs РЫНОК","MODEL vs MARKET"],
+"ФОРМА · СОҢҒЫ ОЙЫНДАР":["ФОРМА · ПОСЛЕДНИЕ МАТЧИ","FORM · RECENT GAMES"],
+"ӨЗАРА КЕЗДЕСУ":["ЛИЧНЫЕ ВСТРЕЧИ","HEAD TO HEAD"],
+"ЛИГА РЕЙТИНГІ":["РЕЙТИНГ ЛИГИ","LEAGUE RATINGS"],
+"БҰРЫШТАМА":["УГЛОВЫЕ","CORNERS"],"Бұрыштама":["Угловые","Corners"],
+"САРЫ ЖӘНЕ ҚЫЗЫЛ ҚАҒАЗ":["ЖЁЛТЫЕ И КРАСНЫЕ КАРТОЧКИ","YELLOW AND RED CARDS"],
+"Сары және қызыл қағаз":["Жёлтые и красные","Yellows and reds"],
+"КІМ БІРІНШІ ГОЛ САЛАДЫ":["КТО ЗАБЬЁТ ПЕРВЫМ","WHO SCORES FIRST"],
+"гол болмайды":["голов не будет","no goals"],
+"ГОЛ СОҒУ ЫҚТИМАЛДЫҒЫ":["ВЕРОЯТНОСТЬ ЗАБИТЬ","SCORING CHANCE"],
+"СОҚҚЫ МЕН ИЕЛЕНУ":["УДАРЫ И ВЛАДЕНИЕ","SHOTS AND POSSESSION"],
+"xG ЖӘНЕ СОҚҚЫ":["xG И УДАРЫ","xG AND SHOTS"],
+"ӘР КОМАНДА БОЙЫНША":["ПО КАЖДОЙ КОМАНДЕ","BY TEAM"],
+"ЖАРАҚАТ ЖӘНЕ ҚҰРАМ":["ТРАВМЫ И СОСТАВ","INJURIES AND SQUAD"],
+"ОЙНАМАЙТЫН ОЙЫНШЫЛАР":["НЕ СЫГРАЮТ","WILL NOT PLAY"],
+"ЖАРИЯЛАНҒАН ҚҰРАМ":["ОБЪЯВЛЕННЫЙ СОСТАВ","ANNOUNCED LINEUP"],
+"СТАДИОН ЖӘНЕ ТӨРЕШІ":["СТАДИОН И СУДЬЯ","VENUE AND REFEREE"],
+"СТАДИОН ЖӘНЕ АУА РАЙЫ":["СТАДИОН И ПОГОДА","VENUE AND WEATHER"],
+"АУА РАЙЫ":["ПОГОДА","WEATHER"],
+"GLICKO РЕЙТИНГІ ЖӘНЕ xG":["РЕЙТИНГ GLICKO И xG","GLICKO RATING AND xG"],
+"ТАЛДАУ ҚОРЫТЫНДЫСЫ":["ИТОГ АНАЛИЗА","ANALYSIS SUMMARY"],
+"Терең талдау жүктеу":["Загрузить глубокий анализ","Load deep analysis"],
+"Болжамды сақтау":["Сохранить прогноз","Save forecast"],
+"Стадион":["Стадион","Venue"],"Қала":["Город","City"],"Турнир":["Турнир","Competition"],
+"Төреші":["Судья","Referee"],"Сыйымдылығы":["Вместимость","Capacity"],
+"әлі тағайындалмаған":["ещё не назначен","not appointed yet"],
+"Температура":["Температура","Temperature"],"Жауын-шашын":["Осадки","Precipitation"],
+"Жел":["Ветер","Wind"],"Ылғалдылық":["Влажность","Humidity"],
+"жаңбыр":["дождь","rain"],"қатты жел":["сильный ветер","strong wind"],"аяз":["мороз","frost"],"ыстық":["жара","heat"],
+"қатал төреші":["строгий судья","strict referee"],"жұмсақ төреші":["мягкий судья","lenient referee"],
+"үйде жарақат көп":["много травм у хозяев","many home injuries"],
+"қонақта жарақат көп":["много травм у гостей","many away injuries"],
+"ойынға әсері шамалы":["влияние на игру незначительное","little effect on the game"],
+"Доп иелену":["Владение мячом","Possession"],"Доп иелену, %":["Владение мячом, %","Possession, %"],
+"Қақпаға дәл":["В створ","On target"],"Айқын сәт":["Явные моменты","Big chances"],
+"Талданған ойын":["Проанализировано матчей","Matches analysed"],
+"xG жасаған (үй / қонақ)":["xG создано (дома / в гостях)","xG created (home / away)"],
+"xG жіберген":["xG пропущено","xG conceded"],
+"Соққы / қақпаға дәл":["Удары / в створ","Shots / on target"],
+"Соққы (үй / қонақ)":["Удары (дома / в гостях)","Shots (home / away)"],
+"Бұзу (үй / қонақ)":["Фолы (дома / в гостях)","Fouls (home / away)"],
+"Ойын сайын бұзу (үй / қонақ)":["Фолы за матч (дома / гости)","Fouls per game (home / away)"],
+"Күтілетін жиын":["Ожидаемо всего","Expected total"],
+"Күтілетін қағаз":["Ожидаемо карточек","Expected cards"],
+"Қызыл ықтималдығы":["Вероятность красной","Red card chance"],
+"Қызыл қағаз ықтималдығы":["Вероятность красной карточки","Red card probability"],
+"Қызыл қағаз шығуы":["Появление красной","Red card shown"],
+"Ойын сайын (үй/қонақ)":["За матч (дома/гости)","Per game (home/away)"],
+"Күтілетін гол (үй / қонақ)":["Ожидаемые голы (дома / гости)","Expected goals (home / away)"],
+"Екі команда да гол салады":["Обе забьют","Both teams score"],
+"Екеуі де гол салмайды":["Обе не забьют","Both fail to score"],
+"Тең ойын":["Ничья","Draw"],"тең ойын":["ничья","draw"],"Тең болмайды":["Ничьей не будет","No draw"],
+"Күтілетін xG":["Ожидаемый xG","Expected xG"],
+"Glicko жеңіс ықтималдығы":["Вероятность победы по Glicko","Glicko win probability"],
+"Олардың пайызы (1 / X / 2)":["Их проценты (1 / X / 2)","Their percentages (1 / X / 2)"],
+"Кеңесі":["Совет","Advice"],
+"Лига бойынша үй артықшылығы":["Преимущество дома по лиге","League home advantage"],
+"Үй артықшылығы":["Преимущество дома","Home advantage"],
+"Талданатын ойын саны":["Количество анализируемых матчей","Matches to analyse"],
+"ДӘЛДІГІМ":["МОЯ ТОЧНОСТЬ","MY ACCURACY"],"Тексерілген":["Проверено","Checked"],"Дәлдік":["Точность","Accuracy"],
+"САҚТАЛҒАН БОЛЖАМДАР":["СОХРАНЁННЫЕ ПРОГНОЗЫ","SAVED FORECASTS"],
+"күтуде":["ожидание","pending"],"дәл":["точно","hit"],"қате":["мимо","miss"],
+"Тізімді тазалау":["Очистить список","Clear list"],
+"ДЕРЕККӨЗ":["ИСТОЧНИК ДАННЫХ","DATA SOURCE"],"Негізгі дереккөз":["Основной источник","Primary source"],
+"SStats (толық)":["SStats (полный)","SStats (full)"],
+"МОДЕЛЬ":["МОДЕЛЬ","MODEL"],"Нұсқа":["Версия","Version"],"Кэш":["Кэш","Cache"],
+"Ойын мен нәтиже":["Матчи и результаты","Matches and results"],
+"ДЕРЕКТІ ТАЗАЛАУ":["ОЧИСТКА ДАННЫХ","CLEAR DATA"],"Кэшті тазалау":["Очистить кэш","Clear cache"],
+"ЕСІҢДЕ БОЛСЫН":["ПОМНИ","REMEMBER"],"Сақтау":["Сохранить","Save"],
+"API кілті":["Ключ API","API key"],
+"Бүгін жұмсалған сұраныс":["Запросов сегодня","Requests today"],
+"ТІЛ":["ЯЗЫК","LANGUAGE"],
+"Мақсат коэффициент":["Целевой коэффициент","Target odds"],
+"Аяқ саны (ең көбі)":["Число событий (максимум)","Legs (maximum)"],
+"Терең талданатын ойын":["Матчей для глубокого анализа","Matches for deep analysis"],
+"Құрастыру":["Составить","Build"],"Басқаша құрастыру":["Составить иначе","Build differently"],
+"Мүлдем басқаша":["Совсем другой","Completely different"],
+"АЯҚТАРЫ":["СОБЫТИЯ","LEGS"],
+"КҮТІЛЕТІН ҚАЙТАРЫМ":["ОЖИДАЕМЫЙ ВОЗВРАТ","EXPECTED RETURN"],
+"Салған әр 1000 ₸-ден қайтады":["Возврат с каждой 1000 ₸","Return per 1000 ₸ staked"],
+"Математикалық үстеме":["Математическое преимущество","Mathematical edge"],
+"ЕГЕР ЖЕКЕ ТІКСЕҢ":["ЕСЛИ СТАВИТЬ ПООТДЕЛЬНОСТИ","IF BET SINGLY"],
+"Ең тиімді жалғыз аяқ":["Самое выгодное одиночное","Best single bet"],
+"Оның коэффициенті мен пайызы":["Его коэффициент и процент","Its odds and percentage"],
+"Күтілетін үстемесі":["Ожидаемое преимущество","Expected edge"],
+"НЕ ЕСКЕРІЛДІ":["ЧТО УЧТЕНО","WHAT WAS CONSIDERED"],
+"Нарық түрлері":["Типы рынков","Market types"],
+"Контекст факторлары":["Контекстные факторы","Context factors"],
+"ерекше жағдай жоқ":["особых условий нет","no special conditions"],
+"нәтиже":["исход","result"],"гол тоталы":["тотал голов","goals total"],"қағаз":["карточки","cards"],
+"(есептелген)":["(расчётный)","(derived)"],
+"Дайын":["Готово","Ready"],"Табылмады":["Не найдено","Not found"],
+"Әзірге бос":["Пока пусто","Empty for now"],
+"Дерек жеткіліксіз":["Недостаточно данных","Not enough data"],
+"Дерек келмеді":["Данные не пришли","No data received"],
+"Талдау аяқталмады":["Анализ не завершён","Analysis incomplete"],
+"Құрастыру аяқталмады":["Составление не завершено","Build incomplete"],
+"Үміткер табылмады":["Кандидаты не найдены","No candidates found"],
+"Қосымша дерек жоқ":["Дополнительных данных нет","No extra data"],
+"Статистика жеткіліксіз":["Недостаточно статистики","Not enough statistics"],
+"Бұл күні ойын жоқ":["В этот день матчей нет","No matches on this day"],
+"Болатын ойын жоқ":["Предстоящих матчей нет","No upcoming matches"],
+"Аяқталған ойын жоқ":["Завершённых матчей нет","No finished matches"],
+"Таңдаулы лигада ойын жоқ":["В избранных лигах матчей нет","No matches in favourite leagues"],
+"Лига таңдалмаған":["Лига не выбрана","No league selected"],
+"Каталог келмеді":["Каталог не получен","Catalogue not received"],
+"SStats керек":["Нужен SStats","SStats required"],
+"SStats жауап бермеді":["SStats не ответил","SStats did not respond"],
+"Қайта көру":["Повторить","Retry"],
+"Басқа күнді таңда.":["Выбери другой день.","Pick another day."],
+"Басқа сөзбен іздеп көр.":["Попробуй другое слово.","Try another word."],
+"ТАҢДАУЛЫ":["ИЗБРАННОЕ","FAVOURITES"],
+"КҮШТІ ЛИГАЛАР АЛДЫМЕН":["СИЛЬНЫЕ ЛИГИ СНАЧАЛА","TOP LEAGUES FIRST"],
+"ТАБЫЛҒАНЫ":["НАЙДЕНО","FOUND"],
+"Лига немесе ел іздеу":["Поиск лиги или страны","Search league or country"],
+"Сақталды":["Сохранено","Saved"],"Кэш тазаланды":["Кэш очищен","Cache cleared"],
+"Таңдаулыға қосылды":["Добавлено в избранное","Added to favourites"],
+"Таңдаулыдан алынды":["Убрано из избранного","Removed from favourites"],
+"Бұл ойын сақталған":["Этот матч уже сохранён","This match is already saved"],
+"Шығу үшін тағы бір рет бас":["Нажми ещё раз для выхода","Press again to exit"],
+"Жоғары":["Высокая","High"],"Орташа":["Средняя","Medium"],"Төмен":["Низкая","Low"]
+};
+let LNGBUSY=false;
+const LORIG=new WeakMap();
+function applyLang(){
+  if(LNGBUSY)return;
+  LNGBUSY=true;
+  const L=LANG();
+  const it=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+  let n;
+  while(n=it.nextNode()){
+    let src=LORIG.get(n);
+    if(src===undefined){src=n.nodeValue;LORIG.set(n,src)}
+    if(L==="kk"){if(n.nodeValue!==src)n.nodeValue=src;continue}
+    const key=src.trim();
+    const d=I18N[key];
+    if(d){const v=L==="ru"?d[0]:d[1];if(v&&n.nodeValue!==src.replace(key,v))n.nodeValue=src.replace(key,v)}
+  }
+  [["lgq","Лига немесе ел іздеу"],["sskey","SStats кілті (міндетті емес)"],["afkey","API кілті"]].forEach(([id,kk])=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    const d=I18N[kk];
+    el.placeholder=(L==="kk"||!d)?kk:(L==="ru"?d[0]:d[1]);
+  });
+  document.documentElement.lang=L;
+  LNGBUSY=false;
+}
+function setLang(v){save("lang",v);applyLang();renderChips();renderDays();loadGames();}
+new MutationObserver(()=>{if(LANG()!=="kk")applyLang()})
+  .observe(document.body,{childList:true,subtree:true,characterData:true});
+
 /* ══════════════ КӨМЕКШІ ══════════════ */
 function ymd(d){return d.getFullYear()+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0")}
 function fromYmd(s){return new Date(+s.slice(0,4),+s.slice(4,6)-1,+s.slice(6,8))}
 function addDays(s,n){const d=fromYmd(s);d.setDate(d.getDate()+n);return ymd(d)}
-const MON=["қаң","ақп","нау","сәу","мам","мау","шіл","там","қыр","қаз","қар","жел"];
-const WD=["жс","дс","сс","ср","бс","жм","сб"];
+const MONS={kk:["қаң","ақп","нау","сәу","мам","мау","шіл","там","қыр","қаз","қар","жел"],
+  ru:["янв","фев","мар","апр","май","июн","июл","авг","сен","окт","ноя","дек"],
+  en:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]};
+const WDS={kk:["жс","дс","сс","ср","бс","жм","сб"],ru:["вс","пн","вт","ср","чт","пт","сб"],
+  en:["Su","Mo","Tu","We","Th","Fr","Sa"]};
+const MON=new Proxy({},{get:(t,i)=>MONS[LANG()]?MONS[LANG()][i]:MONS.kk[i]});
+const WD=new Proxy({},{get:(t,i)=>WDS[LANG()]?WDS[LANG()][i]:WDS.kk[i]});
 function fmtDate(s){const d=fromYmd(s);return d.getDate()+" "+MON[d.getMonth()]}
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 function toast(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("on");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("on"),2200)}
@@ -1001,7 +1194,8 @@ function renderDays(){
   const box=document.getElementById("days");let h="";
   for(let i=-3;i<=7;i++){
     const d=addDays(ymd(new Date()),i), dd=fromYmd(d);
-    const lb=i===0?"бүгін":i===1?"ертең":i===-1?"кеше":WD[dd.getDay()];
+    const lb=i===0?TX("бүгін","сегодня","today"):i===1?TX("ертең","завтра","tomorrow"):
+             i===-1?TX("кеше","вчера","yest"):WD[dd.getDay()];
     h+=`<button class="day${d===S.day?" on":""}" onclick="setDay('${d}')"><b>${dd.getDate()}</b><span>${lb}</span></button>`;
   }
   box.innerHTML=h;
@@ -1472,55 +1666,78 @@ async function deepAnalyze(){
 
 function narrative(e,m,HS,AS,inH,inA,wx,cTot,cardL,ref,rs){
   const P=[["1",m.p1,e.hN],["X",m.px,null],["2",m.p2,e.aN]].sort((a,b)=>b[1]-a[1]);
-  const top=P[0], sec=P[1];
-  const gap=top[1]-sec[1];
+  const top=P[0], gap=top[1]-P[1][1];
   const fav=top[0]==="X"?null:top[2];
   const s=[];
-
   if(fav){
-    const lvl=gap>0.22?"айқын басым":gap>0.10?"сәл басым":"болар-болмас басым";
-    s.push(`Модель ${esc(fav)} жағын ${lvl} деп бағалайды: жеңіс ықтималдығы ${pct(top[1])}%, ал ${top[0]==="1"?"қонақтың":"үй иесінің"} шансы ${pct(top[0]==="1"?m.p2:m.p1)}%.`);
+    const lvl=gap>0.22?TX("айқын басым","явно сильнее","clearly stronger")
+             :gap>0.10?TX("сәл басым","немного сильнее","slightly stronger")
+                      :TX("болар-болмас басым","чуть сильнее","marginally stronger");
+    const other=pct(top[0]==="1"?m.p2:m.p1);
+    s.push(TX(
+      `Модель ${esc(fav)} жағын ${lvl} деп бағалайды: жеңіс ықтималдығы ${pct(top[1])}%, қарсы жақта ${other}%.`,
+      `Модель оценивает ${esc(fav)} как ${lvl}: вероятность победы ${pct(top[1])}%, у соперника ${other}%.`,
+      `The model rates ${esc(fav)} as ${lvl}: win probability ${pct(top[1])}%, opponent ${other}%.`));
   }else{
-    s.push(`Күштер тең — модель тең ойынды ${pct(m.px)}% деп бағалап тұр, бұл футбол үшін жоғары көрсеткіш. Жеңімпазға тікпеген жөн.`);
+    s.push(TX(
+      `Күштер тең — тең ойын ${pct(m.px)}%, бұл футбол үшін жоғары. Жеңімпазға тікпеген жөн.`,
+      `Силы равны — ничья ${pct(m.px)}%, это высокий показатель. На исход лучше не ставить.`,
+      `Evenly matched — draw at ${pct(m.px)}%, which is high. Best to avoid the match result.`));
   }
-
-  const hF=HS?`${HS.sh.toFixed(1)} соққы, ${HS.pos.toFixed(0)}% иелену`:"";
-  const aF=AS?`${AS.sh.toFixed(1)} соққы, ${AS.pos.toFixed(0)}% иелену`:"";
-  if(hF&&aF)s.push(`Соңғы ойындарда ${esc(e.hN)} орта есеппен ${hF}, ${esc(e.aN)} ${aF} көрсеткен. Күтілетін гол — ${m.lh.toFixed(2)} : ${m.la.toFixed(2)}.`);
-
+  if(HS&&AS)s.push(TX(
+    `Соңғы ойындарда ${esc(e.hN)} ${HS.sh.toFixed(1)} соққы, ${HS.pos.toFixed(0)}% иелену; ${esc(e.aN)} ${AS.sh.toFixed(1)} соққы, ${AS.pos.toFixed(0)}% иелену. Күтілетін гол ${m.lh.toFixed(2)} : ${m.la.toFixed(2)}.`,
+    `В последних матчах ${esc(e.hN)} — ${HS.sh.toFixed(1)} ударов, ${HS.pos.toFixed(0)}% владения; ${esc(e.aN)} — ${AS.sh.toFixed(1)} ударов, ${AS.pos.toFixed(0)}%. Ожидаемые голы ${m.lh.toFixed(2)} : ${m.la.toFixed(2)}.`,
+    `Recently ${esc(e.hN)} averaged ${HS.sh.toFixed(1)} shots, ${HS.pos.toFixed(0)}% possession; ${esc(e.aN)} ${AS.sh.toFixed(1)} shots, ${AS.pos.toFixed(0)}%. Expected goals ${m.lh.toFixed(2)} : ${m.la.toFixed(2)}.`));
   const tg=m.lh+m.la;
-  s.push(tg>2.9
-    ? `Екі жақтың да қорғанысы берік емес: жиыны ${tg.toFixed(2)} гол күтіледі, «2.5-тен көп» ${pct(m.o25)}%, екі команда да гол салуы ${pct(m.btts)}%.`
-    : tg<2.2
-      ? `Гол аз ойын болуы ықтимал: жиыны ${tg.toFixed(2)} гол, «2.5-тен аз» ${pct(m.u25)}%.`
-      : `Гол саны орташа деңгейде — жиыны ${tg.toFixed(2)}, бұл нарық ашық, шеті жоқ.`);
-
-  if(cTot)s.push(`Бұрыштама бойынша жиыны ${cTot.toFixed(1)} күтіледі; 9.5 сызығы ${overP(cTot,9.5)>0.5?"жоғары":"төмен"} жақта — ${pct(Math.max(overP(cTot,9.5),1-overP(cTot,9.5)))}%.`);
-
+  s.push(tg>2.9?TX(
+      `Қорғаныстары берік емес: жиыны ${tg.toFixed(2)} гол, «2.5-тен көп» ${pct(m.o25)}%, екеуі де гол салуы ${pct(m.btts)}%.`,
+      `Обороны нестабильны: всего ${tg.toFixed(2)} гола, «больше 2.5» ${pct(m.o25)}%, обе забьют ${pct(m.btts)}%.`,
+      `Both defences look shaky: ${tg.toFixed(2)} goals expected, over 2.5 at ${pct(m.o25)}%, both to score ${pct(m.btts)}%.`)
+    :tg<2.2?TX(
+      `Гол аз ойын ықтимал: жиыны ${tg.toFixed(2)}, «2.5-тен аз» ${pct(m.u25)}%.`,
+      `Вероятен матч с малым числом голов: всего ${tg.toFixed(2)}, «меньше 2.5» ${pct(m.u25)}%.`,
+      `A low-scoring game looks likely: ${tg.toFixed(2)} total, under 2.5 at ${pct(m.u25)}%.`)
+    :TX(`Гол саны орташа — жиыны ${tg.toFixed(2)}, бұл нарықта шеті жоқ.`,
+        `Голов ожидается средне — всего ${tg.toFixed(2)}, преимущества на этом рынке нет.`,
+        `Goals look average — ${tg.toFixed(2)} total, no edge in this market.`));
+  if(cTot){
+    const hi=overP(cTot,9.5)>0.5, pr=pct(Math.max(overP(cTot,9.5),1-overP(cTot,9.5)));
+    s.push(TX(`Бұрыштама жиыны ${cTot.toFixed(1)}; 9.5 сызығы ${hi?"жоғары":"төмен"} жақта — ${pr}%.`,
+              `Всего угловых ${cTot.toFixed(1)}; линия 9.5 ${hi?"выше":"ниже"} — ${pr}%.`,
+              `Corners total ${cTot.toFixed(1)}; the 9.5 line leans ${hi?"over":"under"} — ${pr}%.`));
+  }
   if(cardL){
-    let t=`Қағаз жиыны шамамен ${cardL.toFixed(1)}`;
-    if(rs)t+=`; төреші ${esc(ref)} ${rs.m} ойында орташа ${(rs.y/rs.m).toFixed(1)} сары қағаз көрсеткен`;
-    else if(ref)t+=`; төреші ${esc(ref)}, тарихы әлі жиналуда`;
-    s.push(t+".");
+    const rr=rs?TX(`; төреші ${esc(ref)} ${rs.m} ойында орташа ${(rs.y/rs.m).toFixed(1)} сары қағаз көрсеткен`,
+                   `; судья ${esc(ref)} в ${rs.m} матчах показывал в среднем ${(rs.y/rs.m).toFixed(1)} жёлтых`,
+                   `; referee ${esc(ref)} averages ${(rs.y/rs.m).toFixed(1)} yellows over ${rs.m} games`)
+             :ref?TX(`; төреші ${esc(ref)}, тарихы жиналуда`,`; судья ${esc(ref)}, история накапливается`,`; referee ${esc(ref)}, history still building`):"";
+    s.push(TX(`Қағаз жиыны шамамен ${cardL.toFixed(1)}${rr}.`,
+              `Карточек ожидается около ${cardL.toFixed(1)}${rr}.`,
+              `Around ${cardL.toFixed(1)} cards expected${rr}.`));
   }
-
-  const ni=(inH||[]).length,na=(inA||[]).length;
-  if(ni+na>0)s.push(`Жарақат тізімінде ${esc(e.hN)} — ${ni}, ${esc(e.aN)} — ${na} ойыншы. Модель құрамды ескермейді, сондықтан негізгі шабуылшы жоқ болса, сол жақтың пайызын өзің төмендет.`);
-
+  const ni=(inH||[]).length, na=(inA||[]).length;
+  if(ni+na>0)s.push(TX(
+    `Жарақат тізімінде ${esc(e.hN)} — ${ni}, ${esc(e.aN)} — ${na} ойыншы. Негізгі шабуылшы жоқ болса, сол жақтың пайызын өзің төмендет.`,
+    `В лазарете ${esc(e.hN)} — ${ni}, ${esc(e.aN)} — ${na} игроков. Если нет основного нападающего, снизь процент этой команды.`,
+    `Injury list: ${esc(e.hN)} ${ni}, ${esc(e.aN)} ${na}. If a key striker is out, lower that side's percentage yourself.`));
   if(wx){
-    if(wx.p>=0.5)s.push(`Ойын кезінде ${wx.p.toFixed(1)} мм жауын күтіледі — доп жылдамдайды, қателік көбейеді, әдетте гол азаяды.`);
-    else if(wx.w>=25)s.push(`Жел ${Math.round(wx.w)} км/сағ — ұзын беріліске сүйенетін команда қиналады.`);
-    else s.push(`Ауа райы қалыпты: ${Math.round(wx.t)}°C, жел ${Math.round(wx.w)} км/сағ — ойынға әсері шамалы.`);
+    s.push(wx.p>=0.5?TX(`Ойын кезінде ${wx.p.toFixed(1)} мм жауын күтіледі — әдетте гол азаяды.`,
+                        `Ожидается ${wx.p.toFixed(1)} мм осадков — обычно голов меньше.`,
+                        `${wx.p.toFixed(1)} mm of rain expected — usually fewer goals.`)
+      :wx.w>=25?TX(`Жел ${Math.round(wx.w)} км/сағ — ұзын берілісті команда қиналады.`,
+                   `Ветер ${Math.round(wx.w)} км/ч — командам с длинными передачами будет тяжело.`,
+                   `Wind at ${Math.round(wx.w)} km/h — long-ball sides will struggle.`)
+      :TX(`Ауа райы қалыпты: ${Math.round(wx.t)}°C, жел ${Math.round(wx.w)} км/сағ.`,
+          `Погода обычная: ${Math.round(wx.t)}°C, ветер ${Math.round(wx.w)} км/ч.`,
+          `Weather is normal: ${Math.round(wx.t)}°C, wind ${Math.round(wx.w)} km/h.`));
   }
-
-  s.push(`Ең сенімді тұсы — ${(function(){
-    const c=[[`${top[0]==="X"?"тең ойын":esc(fav)+" жеңісі"}`,top[1]],
-             [m.o25>m.u25?"2.5-тен көп гол":"2.5-тен аз гол",Math.max(m.o25,m.u25)]];
-    if(cTot)c.push([overP(cTot,9.5)>0.5?"бұрыштама 9.5-тен көп":"бұрыштама 9.5-тен аз",Math.max(overP(cTot,9.5),1-overP(cTot,9.5))]);
-    c.sort((a,b)=>b[1]-a[1]);
-    return c[0][0]+" ("+pct(c[0][1])+"%)";
-  })()}. Бұл кепілдік емес — үш ойынның біреуі әрқашан күтпеген жаққа бұрылады.`);
-
+  const cand=[[top[0]==="X"?TX("тең ойын","ничья","the draw"):esc(fav)+TX(" жеңісі"," победа"," win"),top[1]],
+              [m.o25>m.u25?MKT("goal",2.5,1):MKT("goal",2.5,0),Math.max(m.o25,m.u25)]];
+  if(cTot)cand.push([overP(cTot,9.5)>0.5?MKT("corner",9.5,1):MKT("corner",9.5,0),Math.max(overP(cTot,9.5),1-overP(cTot,9.5))]);
+  cand.sort((a,b)=>b[1]-a[1]);
+  s.push(TX(`Ең сенімді тұсы — ${cand[0][0]} (${pct(cand[0][1])}%). Бұл кепілдік емес: үш ойынның біреуі әрқашан күтпеген жаққа бұрылады.`,
+            `Самое надёжное — ${cand[0][0]} (${pct(cand[0][1])}%). Это не гарантия: каждый третий матч идёт не по плану.`,
+            `The most reliable angle is ${cand[0][0]} (${pct(cand[0][1])}%). No guarantee — one match in three defies the model.`));
   return s;
 }
 
@@ -1858,12 +2075,12 @@ function extraMarkets(e,m,st,A){
   const lh=m.lh*A.goal*A.attH, la=m.la*A.goal*A.attA, L=lh+la;
   [1.5,2.5,3.5].forEach(l=>{
     const ov=overP(L,l);
-    add("O"+l, l+"-тен көп гол", ov, 0.94/ov, A.notes.join(", "));
-    add("U"+l, l+"-тен аз гол", 1-ov, 0.94/(1-ov), A.notes.join(", "));
+    add("O"+l, MKT("goal",l,1), ov, 0.94/ov, A.notes.join(", "));
+    add("U"+l, MKT("goal",l,0), 1-ov, 0.94/(1-ov), A.notes.join(", "));
   });
   const btts=1-Math.exp(-lh)-Math.exp(-la)+Math.exp(-L);
-  add("BTTS","Екі команда да гол салады",btts,0.94/btts,"");
-  add("NBTTS","Екеуі де гол салмайды",1-btts,0.94/(1-btts),"");
+  add("BTTS",TX("Екі команда да гол салады","Обе забьют","Both teams score"),btts,0.94/btts,"");
+  add("NBTTS",TX("Екеуі де гол салмайды","Обе не забьют","Both fail to score"),1-btts,0.94/(1-btts),"");
 
   if(st){
     const cf=(x,y)=>{const a=x&&x.corners,b=y&&y.cornersA;return (a!=null?a:0)+(b!=null?b:a!=null?a:0)};
@@ -1873,8 +2090,8 @@ function extraMarkets(e,m,st,A){
       const C=(ch+ca)*A.corner;
       [8.5,9.5,10.5].forEach(l=>{
         const ov=overP(C,l);
-        add("C+"+l,"Бұрыштама "+l+"-тен көп",ov,0.94/ov,A.notes.join(", "));
-        add("C-"+l,"Бұрыштама "+l+"-тен аз",1-ov,0.94/(1-ov),A.notes.join(", "));
+        add("C+"+l,MKT("corner",l,1),ov,0.94/ov,A.notes.join(", "));
+        add("C-"+l,MKT("corner",l,0),1-ov,0.94/(1-ov),A.notes.join(", "));
       });
     }
     const yh=st.h&&st.h.yellow!=null?st.h.yellow:null;
@@ -1883,13 +2100,13 @@ function extraMarkets(e,m,st,A){
       const K=(yh+ya)*A.card;
       [3.5,4.5].forEach(l=>{
         const ov=overP(K,l);
-        add("K+"+l,"Қағаз "+l+"-тен көп",ov,0.94/ov,A.notes.join(", "));
-        add("K-"+l,"Қағаз "+l+"-тен аз",1-ov,0.94/(1-ov),A.notes.join(", "));
+        add("K+"+l,MKT("card",l,1),ov,0.94/ov,A.notes.join(", "));
+        add("K-"+l,MKT("card",l,0),1-ov,0.94/(1-ov),A.notes.join(", "));
       });
       const rd=((st.h&&st.h.red)||0)+((st.a&&st.a.red)||0);
       if(rd>0){
         const pr=1-Math.exp(-rd);
-        add("NR","Қызыл қағаз болмайды",1-pr,0.94/(1-pr),"");
+        add("NR",TX("Қызыл қағаз болмайды","Красной карточки не будет","No red card"),1-pr,0.94/(1-pr),"");
       }
     }
   }
@@ -1906,6 +2123,15 @@ let expBusy=false;
 function expTarget(){return ls("exptarget",70)}
 function expLegs(){return ls("explegs",6)}
 
+
+function MKT(kind,line,over){
+  const K={goal:["гол","голов","goals"],corner:["бұрыштама","угловых","corners"],card:["қағаз","карточек","cards"]}[kind];
+  const L=LANG();
+  if(L==="ru")return (over?"Больше ":"Меньше ")+line+" "+K[1];
+  if(L==="en")return (over?"Over ":"Under ")+line+" "+K[2];
+  return (kind==="goal"?"":K[0]+" ")+line+(over?"-тен көп":"-тен аз")+(kind==="goal"?" гол":"");
+}
+
 function candidates(e,m){
   const c=[], O=e.odds||{};
   const add=(k,label,p,o,real)=>{
@@ -1913,21 +2139,24 @@ function candidates(e,m){
     if(p<0.30||p>0.97)return;
     c.push({k,label,p,o,real,e});
   };
-  add("1",e.hN+" жеңеді",m.p1,O.oh,true);
-  add("2",e.aN+" жеңеді",m.p2,O.oa,true);
-  add("X","Тең ойын",m.px,O.od,true);
+  const W=n=>TX(n+" жеңеді",n+" победит",n+" to win");
+  const NL=n=>TX(n+" ұтылмайды",n+" не проиграет",n+" not to lose");
+  add("1",W(e.hN),m.p1,O.oh,true);
+  add("2",W(e.aN),m.p2,O.oa,true);
+  add("X",TX("Тең ойын","Ничья","Draw"),m.px,O.od,true);
   // қос мүмкіндік — нарық ықтималдығынан шығарылады (маржасы сақталады)
-  if(O.h!=null&&O.d!=null)add("1X",e.hN+" ұтылмайды",m.p1+m.px,1/(O.h+O.d),false);
-  if(O.d!=null&&O.a!=null)add("X2",e.aN+" ұтылмайды",m.px+m.p2,1/(O.d+O.a),false);
-  if(O.h!=null&&O.a!=null)add("12","Тең болмайды",m.p1+m.p2,1/(O.h+O.a),false);
+  if(O.h!=null&&O.d!=null)add("1X",NL(e.hN),m.p1+m.px,1/(O.h+O.d),false);
+  if(O.d!=null&&O.a!=null)add("X2",NL(e.aN),m.px+m.p2,1/(O.d+O.a),false);
+  if(O.h!=null&&O.a!=null)add("12",TX("Тең болмайды","Ничьей не будет","No draw"),m.p1+m.p2,1/(O.h+O.a),false);
   // тотал — нарық коэффициенті жоқ, әділ бағаға 6% маржа қосылады
-  add("O2.5","2.5-тен көп гол",m.o25,0.94/m.o25,false);
-  add("U2.5","2.5-тен аз гол",m.u25,0.94/m.u25,false);
+  add("O2.5",MKT("goal",2.5,1),m.o25,0.94/m.o25,false);
+  add("U2.5",MKT("goal",2.5,0),m.u25,0.94/m.u25,false);
   return c;
 }
 
-async function buildExpress(){
+async function buildExpress(fresh){
   if(expBusy)return;
+  if(fresh){const b=ls("expban",[]);save("expban",b);}
   expBusy=true;
   const box=document.getElementById("expbody");
   const T=expTarget(), MAXL=expLegs();
@@ -1947,7 +2176,7 @@ async function buildExpress(){
     pool2.forEach(e=>{(byLg[e.lg]=byLg[e.lg]||{id:e.lg,n:e.lgShort,c:e.lgCountry,list:[]}).list.push(e)});
     const lgs=Object.values(byLg).sort((a,b)=>lgRank(a.n,a.c)-lgRank(b.n,b.c)).slice(0,12);
 
-    const cands=[];
+    let cands=[];
     for(let i=0;i<lgs.length;i++){
       const L=lgs[i];
       set("Лига модельдері құрылуда… "+(i+1)+"/"+lgs.length+"<br><span class='xs'>"+esc(L.n)+"</span>");
@@ -2002,6 +2231,11 @@ async function buildExpress(){
 
     /* ── таңдау: log(p)/log(o) бойынша, бір ойыннан бір аяқ, бір лигадан 2 аяқтан аспау ── */
     const seenK=ls("expseenk",[]);
+    const ban=fresh?ls("expban",[]):[];
+    if(ban.length){
+      const left=cands.filter(c=>ban.indexOf(c.e.id)<0);
+      if(left.length>=12)cands=left; else save("expban",[]);
+    }
     cands.forEach(c=>{
       c.edge=c.p*c.o-1;
       let sc=Math.log(c.p)/Math.log(c.o);
@@ -2036,6 +2270,35 @@ async function buildExpress(){
         legs.push(c);usedM[c.e.id]=1;O*=c.o;P*=c.p;
       }
     }
+    /* ── дәлдеу: мақсатқа мүмкіндігінше жақын түсіру ── */
+    {
+      const cost=(o,pp)=>Math.abs(Math.log(o/T))-0.05*Math.log(pp);
+      for(let pass=0;pass<4;pass++){
+        let moved=false;
+        for(let i=0;i<legs.length;i++){
+          const cur=legs[i];
+          let best=null,bc=cost(O,P);
+          for(const c of cands){
+            if(c===cur)continue;
+            if(c.e.id!==cur.e.id&&usedM[c.e.id])continue;
+            const nO=O/cur.o*c.o, nP=P/cur.p*c.p;
+            if(nO<T*0.985)continue;
+            const nc=cost(nO,nP);
+            if(nc<bc-1e-9){bc=nc;best=c}
+          }
+          if(best){
+            delete usedM[cur.e.id];
+            usedL[cur.lg]=Math.max(0,(usedL[cur.lg]||1)-1);
+            O=O/cur.o*best.o;P=P/cur.p*best.p;
+            legs[i]=best;usedM[best.e.id]=1;usedL[best.lg]=(usedL[best.lg]||0)+1;
+            moved=true;
+          }
+        }
+        if(!moved)break;
+      }
+    }
+    const prevBan=ls("expban",[]);
+    save("expban",prevBan.concat(legs.map(c=>c.e.id)).slice(-40));
     save("expseen",legs.map(c=>c.e.id));
     save("expseenk",legs.map(c=>c.e.id+"|"+c.k));
     box.innerHTML=expressHTML(legs,O,P,T);
@@ -2050,7 +2313,8 @@ function expressHTML(legs,O,P,T){
   const once=Math.round(1/P);
   let h=`<div class="stamp" style="margin:14px 16px">
     <div class="lb">ЭКСПРЕСС · ${legs.length} АЯҚ</div>
-    <div class="vl">${O.toFixed(2)} коэффициент</div>
+    <div class="vl">${O.toFixed(2)}</div>
+    <div class="nt" style="margin-top:0">${TX("мақсат","цель","target")} ${T} · ${TX("айырма","отклонение","off by")} ${(Math.abs(O/T-1)*100).toFixed(1)}%</div>
     <div class="nt">Ұту ықтималдығы ${(P*100).toFixed(2)}% — орта есеппен әр <b>${once}</b> экспресстің біреуі ұтады.</div>
   </div>`;
 
@@ -2094,7 +2358,11 @@ function expressHTML(legs,O,P,T){
     <div class="kv"><span>Контекст факторлары</span><b class="sm">${allNotes.length?esc(allNotes.join(", ")):"ерекше жағдай жоқ"}</b></div>
     <p class="xs mut" style="margin:9px 0 0">Терең талданған ойындарда ауа райы голға және бұрыштамаға, төрешінің қаталдығы қағазға, жарақат саны сол команданың шабуылына түзету енгізді.</p>
   </div></div>`;
-  h+=`<div style="margin:14px 16px 30px"><button class="btn-fill" onclick="buildExpress()">Басқаша құрастыру</button></div>`;
+  h+=`<div style="margin:14px 16px 30px;display:flex;flex-direction:column;gap:8px">
+    <button class="btn-fill" onclick="buildExpress()">Басқаша құрастыру</button>
+    <button class="btn-stamp" onclick="buildExpress(true)">Мүлдем басқаша</button>
+    <p class="xs mut" style="margin:2px 2px 0">«Басқаша» — сол ойындардан өзге нұсқа. «Мүлдем басқаша» — бұрын қолданылған ойындарды түгел шығарып тастап, жаңадан құрады.</p>
+  </div>`;
   return h;
 }
 
@@ -2109,7 +2377,8 @@ function openExpress(){
      <div style="display:flex;gap:6px;flex-wrap:wrap">${chips("l",[3,4,5,6,8],expLegs(),"setExpL")}</div>
      <div class="sm" style="font-weight:600;margin:12px 0 5px">Терең талданатын ойын <span class="mut xs">(ауа райы, төреші, бұрыштама, қағаз)</span></div>
      <div style="display:flex;gap:6px;flex-wrap:wrap">${chips("d",[0,4,6,10],Number(ls("expdeep",6)),"setExpD")}</div>
-     <button class="btn-fill" style="margin-top:12px" onclick="buildExpress()">Құрастыру</button>`;
+     <button class="btn-fill" style="margin-top:12px" onclick="buildExpress()">Құрастыру</button>
+     <button class="btn-stamp" style="margin-top:8px" onclick="buildExpress(true)">Мүлдем басқаша</button>`;
   b.innerHTML=`<div class="empty"><b>Дайын</b>Мақсатты таңдап, «Құрастыру» түймесін бас. Лига модельдері бірінші рет 15–30 секунд алады.</div>`;
 }
 function setExpT(v){save("exptarget",v);openExpress()}
@@ -2215,7 +2484,8 @@ function go(id){
   save("tab",id);
   window.scrollTo(0,0);
   if(id==="p-saved")renderSaved();
-  if(id==="p-set"){cacheSize();afqShow()}
+  if(id==="p-set"){cacheSize();afqShow();
+    ["kk","ru","en"].forEach(x=>{const el=document.getElementById("lang-"+x);if(el)el.classList.toggle("on",LANG()===x)});}
 }
 function openFull(id){
   document.getElementById(id).classList.add("on");
@@ -2261,6 +2531,7 @@ document.getElementById("nm").addEventListener("input",e=>{
   renderDays();renderChips();
   const t=ls("tab","p-games");go(t);
   loadGames();
+  if(LANG()!=="kk")applyLang();
   setTimeout(()=>document.getElementById("splash").classList.add("off"),700);
   if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
   document.addEventListener("visibilitychange",()=>{
