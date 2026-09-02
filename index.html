@@ -214,7 +214,7 @@ a{color:var(--away)}
     <div class="card"><h3>ДЕРЕККӨЗ</h3><div class="in">
       <div class="kv"><span>Ойын мен нәтиже</span><b class="sm">ESPN ашық API</b></div>
       <div class="kv"><span>Кэш</span><b class="sm" id="cachesize">—</b></div>
-      <div class="kv"><span>Нұсқа</span><b class="sm">v6.0</b></div>
+      <div class="kv"><span>Нұсқа</span><b class="sm">v6.1</b></div>
     </div></div>
     <div class="card"><h3>МОДЕЛЬ</h3><div class="in">
       <p class="sm mut" style="margin:0 0 10px">Пуассон + Диксон-Коулс түзетуі. Әр команданың соңғы 12 ойыны алынып, жаңа ойындарға көбірек салмақ беріледі. Одан шабуыл/қорғаныс күші, үй артықшылығы есептеліп, 0:0-ден 8:8-ге дейінгі барлық есеп ықтималдығы шығарылады.</p>
@@ -1783,6 +1783,119 @@ function afHTML(x,e){
 }
 
 
+
+/* ── /Games/last-games-stats — бір сұраныспен екі команданың алдын ала статистикасы.
+   Жауап құрылымы құжатта ашылмаған, сондықтан икемді іздеу қолданылады. ── */
+function deepNum(o,re,depth){
+  if(o==null||depth>4)return null;
+  if(Array.isArray(o)){for(const x of o){const v=deepNum(x,re,depth+1);if(v!=null)return v}return null}
+  if(typeof o!=="object")return null;
+  for(const k in o){
+    const v=o[k];
+    if(re.test(k)){const n=Number(v);if(isFinite(n))return n}
+  }
+  for(const k in o){const v=deepNum(o[k],re,depth+1);if(v!=null)return v}
+  return null;
+}
+function sideBlock(root,which){
+  if(!root)return null;
+  if(Array.isArray(root)&&root.length>=2)return root[which==="home"?0:1];
+  for(const k in root){
+    if(new RegExp(which,"i").test(k)&&root[k]&&typeof root[k]==="object")return root[k];
+  }
+  return root;
+}
+async function ssLastStats(gameId){
+  return ssCached("ssls."+gameId, 6*3600*1000,
+    "/Games/last-games-stats?gameId="+gameId+"&limit=10", raw=>{
+      if(!raw)return null;
+      const grab=w=>{
+        const b=sideBlock(raw,w);
+        if(!b)return null;
+        const g=(re)=>{const v=deepNum(b,re,0);return v==null?null:v};
+        const o={
+          corners:g(/corner/i), cornersA:g(/corner.*(against|conced|opp)/i),
+          yellow:g(/yellow/i), red:g(/red/i),
+          goals:g(/goals?(For|Scored)?$/i), goalsA:g(/(conced|against)/i)
+        };
+        return Object.values(o).some(v=>v!=null)?o:null;
+      };
+      const h=grab("home"), a=grab("away");
+      return (h||a)?{h,a}:null;
+    });
+}
+
+/* контекст түзетулері: ауа райы, төреші, жарақат */
+function ctxAdjust(ctx){
+  const A={goal:1,corner:1,card:1,attH:1,attA:1,notes:[]};
+  const w=ctx.wx;
+  if(w){
+    if(w.p>=0.5){A.goal*=0.95;A.corner*=1.03;A.notes.push("жаңбыр")}
+    if(w.w>=25){A.goal*=0.96;A.corner*=0.97;A.notes.push("қатты жел")}
+    if(w.t<=0){A.goal*=0.96;A.notes.push("аяз")}
+    if(w.t>=32){A.goal*=0.97;A.notes.push("ыстық")}
+  }
+  if(ctx.refAvg&&ctx.baseCards>0.5){
+    const k=Math.max(0.75,Math.min(1.35,ctx.refAvg/ctx.baseCards));
+    A.card*=k;
+    if(k>=1.12)A.notes.push("қатал төреші");
+    else if(k<=0.9)A.notes.push("жұмсақ төреші");
+  }
+  if(ctx.injH>0){A.attH*=Math.max(0.90,Math.pow(0.975,ctx.injH));if(ctx.injH>=3)A.notes.push("үйде жарақат көп")}
+  if(ctx.injA>0){A.attA*=Math.max(0.90,Math.pow(0.975,ctx.injA));if(ctx.injA>=3)A.notes.push("қонақта жарақат көп")}
+  return A;
+}
+
+/* қосымша нарықтар: гол тоталы, бұрыштама, қағаз */
+function extraMarkets(e,m,st,A){
+  const out=[];
+  const add=(k,label,p,o,note)=>{
+    if(!isFinite(p)||p<0.32||p>0.95)return;
+    if(!isFinite(o)||o<=1.02)return;
+    out.push({k,label,p,o,real:false,e,note});
+  };
+  // гол тоталы (модельден, контекспен түзетілген)
+  const lh=m.lh*A.goal*A.attH, la=m.la*A.goal*A.attA, L=lh+la;
+  [1.5,2.5,3.5].forEach(l=>{
+    const ov=overP(L,l);
+    add("O"+l, l+"-тен көп гол", ov, 0.94/ov, A.notes.join(", "));
+    add("U"+l, l+"-тен аз гол", 1-ov, 0.94/(1-ov), A.notes.join(", "));
+  });
+  const btts=1-Math.exp(-lh)-Math.exp(-la)+Math.exp(-L);
+  add("BTTS","Екі команда да гол салады",btts,0.94/btts,"");
+  add("NBTTS","Екеуі де гол салмайды",1-btts,0.94/(1-btts),"");
+
+  if(st){
+    const cf=(x,y)=>{const a=x&&x.corners,b=y&&y.cornersA;return (a!=null?a:0)+(b!=null?b:a!=null?a:0)};
+    const ch=st.h&&st.h.corners!=null?st.h.corners:null;
+    const ca=st.a&&st.a.corners!=null?st.a.corners:null;
+    if(ch!=null&&ca!=null){
+      const C=(ch+ca)*A.corner;
+      [8.5,9.5,10.5].forEach(l=>{
+        const ov=overP(C,l);
+        add("C+"+l,"Бұрыштама "+l+"-тен көп",ov,0.94/ov,A.notes.join(", "));
+        add("C-"+l,"Бұрыштама "+l+"-тен аз",1-ov,0.94/(1-ov),A.notes.join(", "));
+      });
+    }
+    const yh=st.h&&st.h.yellow!=null?st.h.yellow:null;
+    const ya=st.a&&st.a.yellow!=null?st.a.yellow:null;
+    if(yh!=null&&ya!=null){
+      const K=(yh+ya)*A.card;
+      [3.5,4.5].forEach(l=>{
+        const ov=overP(K,l);
+        add("K+"+l,"Қағаз "+l+"-тен көп",ov,0.94/ov,A.notes.join(", "));
+        add("K-"+l,"Қағаз "+l+"-тен аз",1-ov,0.94/(1-ov),A.notes.join(", "));
+      });
+      const rd=((st.h&&st.h.red)||0)+((st.a&&st.a.red)||0);
+      if(rd>0){
+        const pr=1-Math.exp(-rd);
+        add("NR","Қызыл қағаз болмайды",1-pr,0.94/(1-pr),"");
+      }
+    }
+  }
+  return out;
+}
+
 /* ══════════════════════════════════════════
    ЭКСПРЕСС ҚҰРАСТЫРҒЫШ (v6.0)
    Мақсат: берілген коэффициентке ықтималдықтан ең аз жоғалтып жету.
@@ -1845,17 +1958,58 @@ async function buildExpress(){
       }catch(err){}
       if(!F)continue;
       L.list.forEach(e=>{
-        const Λ=fitLambdas(F,e.hId,e.aId);
-        if(!Λ)return;
-        const m=model([],[],{nm:12,hfa:S.hfa,aId:e.aId,force:{lh:Λ.lh,la:Λ.la,rho:Λ.rho,n:F.n}});
+        const Lam=fitLambdas(F,e.hId,e.aId);
+        if(!Lam)return;
+        const m=model([],[],{nm:12,hfa:S.hfa,aId:e.aId,force:{lh:Lam.lh,la:Lam.la,rho:Lam.rho,n:F.n}});
         if(!m)return;
+        e._m=m;
         candidates(e,m).forEach(c=>{c.lg=L.id;c.lgN=L.n;cands.push(c)});
       });
     }
+
+    /* ── терең сканер: ең перспективалы ойындарға ауа райы, төреші,
+       бұрыштама мен қағаз статистикасын тартамыз ── */
+    const DEEPN=Number(ls("expdeep",6));
+    if(DEEPN>0){
+      const byM={};
+      cands.forEach(c=>{const b=byM[c.e.id];if(!b||c.p>b.p)byM[c.e.id]=c});
+      let top=Object.values(byM).sort((a,b)=>b.p-a.p);
+      /* әр жолы басқаша болу үшін алдыңғы жолғы ойындарды артқа ысырамыз */
+      const seen=ls("expseen",[]);
+      top.sort((a,b)=>(seen.indexOf(a.e.id)>-1?1:0)-(seen.indexOf(b.e.id)>-1?1:0));
+      top=top.slice(0,DEEPN);
+      for(let i=0;i<top.length;i++){
+        const e=top[i].e;
+        set("Терең талдау… "+(i+1)+"/"+top.length+"<br><span class='xs'>"+esc(e.hN)+" — "+esc(e.aN)+"</span>");
+        let st=null,full=null,inj=null;
+        try{st=await ssLastStats(e.id)}catch(err){}
+        try{full=await ssFull(e.id,false)}catch(err){}
+        try{inj=await ssInjuries(e.id)}catch(err){}
+        let wx=null;
+        const city=full&&full.venue&&full.venue.city;
+        if(city){try{wx=await getWeather(city,null,e.iso)}catch(err){}}
+        const ref=full&&full.refereeName, rs=ref?refStats(ref):null;
+        const baseCards=st&&st.h&&st.a&&st.h.yellow!=null&&st.a.yellow!=null?(st.h.yellow+st.a.yellow):0;
+        const A=ctxAdjust({wx,refAvg:rs?rs.y/rs.m:null,baseCards,
+          injH:inj?inj.filter(x=>String(x.teamId)===String(e.hId)).length:0,
+          injA:inj?inj.filter(x=>String(x.teamId)===String(e.aId)).length:0});
+        e._ctx={wx,ref,venue:full&&full.venue?full.venue.name:null,notes:A.notes};
+        extraMarkets(e,e._m,st,A).forEach(c=>{c.lg=e.lg;c.lgN=e.lgShort;c.deep=true;cands.push(c)});
+      }
+    }
+
     if(!cands.length){box.innerHTML='<div class="empty"><b>Үміткер табылмады</b>Бұл күні модель құруға жеткілікті мұрағаты бар лига жоқ.</div>';expBusy=false;return}
 
     /* ── таңдау: log(p)/log(o) бойынша, бір ойыннан бір аяқ, бір лигадан 2 аяқтан аспау ── */
-    cands.forEach(c=>{c.score=Math.log(c.p)/Math.log(c.o); c.edge=c.p*c.o-1});
+    const seenK=ls("expseenk",[]);
+    cands.forEach(c=>{
+      c.edge=c.p*c.o-1;
+      let sc=Math.log(c.p)/Math.log(c.o);
+      sc*=(0.97+Math.random()*0.06);                       // әр жолы басқаша құрам
+      if(seenK.indexOf(c.e.id+"|"+c.k)>-1)sc*=0.88;        // өткен жолғы аяқтарды сирету
+      if(c.deep)sc*=1.05;                                  // терең тексерілгенге басымдық
+      c.score=sc;
+    });
     cands.sort((a,b)=>b.score-a.score);
     const legs=[],usedM={},usedL={};
     let O=1,P=1;
@@ -1882,6 +2036,8 @@ async function buildExpress(){
         legs.push(c);usedM[c.e.id]=1;O*=c.o;P*=c.p;
       }
     }
+    save("expseen",legs.map(c=>c.e.id));
+    save("expseenk",legs.map(c=>c.e.id+"|"+c.k));
     box.innerHTML=expressHTML(legs,O,P,T);
   }catch(err){
     box.innerHTML='<div class="empty"><b>Құрастыру аяқталмады</b>'+esc(err.message)+'</div>';
@@ -1911,7 +2067,9 @@ function expressHTML(legs,O,P,T){
     h+=`<div class="mrow" style="cursor:default;grid-template-columns:26px 1fr auto">
       <span class="tm">${i+1}</span>
       <span class="tt">${esc(c.e.hN)} — ${esc(c.e.aN)}
-        <span class="lg">${c.e.hm} · ${esc(c.lgN)} · <b style="color:var(--stamp)">${esc(c.label)}</b>${c.real?"":" <span class='mut'>(есептелген)</span>"}</span></span>
+        <span class="lg">${c.e.hm} · ${esc(c.lgN)} · <b style="color:var(--stamp)">${esc(c.label)}</b>${c.real?"":" <span class='mut'>(есептелген)</span>"}${
+          c.e._ctx&&c.e._ctx.notes&&c.e._ctx.notes.length?"<br><span class='mut'>ескерілді: "+esc(c.e._ctx.notes.join(", "))+"</span>":""
+        }${c.e._ctx&&c.e._ctx.ref?"<br><span class='mut'>төреші: "+esc(c.e._ctx.ref)+"</span>":""}</span></span>
       <span class="p3"><s class="hi">${c.o.toFixed(2)}</s><s>${pct(c.p)}%</s></span></div>`;
   });
   h+=`</div>`;
@@ -1924,7 +2082,19 @@ function expressHTML(legs,O,P,T){
     <p class="xs mut" style="margin:9px 0 0">Бір аяқты тіккенде маржа бір-ақ рет алынады. ${legs.length} аяқты экспрессте ол ${legs.length} рет қайталанады — сондықтан бірдей модельмен жеке ставкалар әрқашан тиімдірек.</p>
   </div></div>`;
 
-  h+=`<div style="margin:14px 16px 30px"><button class="btn-fill" onclick="buildExpress()">Қайта құрастыру</button></div>`;
+  const allNotes=[];
+  legs.forEach(c=>{if(c.e._ctx&&c.e._ctx.notes)c.e._ctx.notes.forEach(n=>{if(allNotes.indexOf(n)<0)allNotes.push(n)})});
+  const kinds=[];
+  legs.forEach(c=>{
+    const t=/^C/.test(c.k)?"бұрыштама":/^K|^NR/.test(c.k)?"қағаз":/^O|^U|BTTS/.test(c.k)?"гол тоталы":"нәтиже";
+    if(kinds.indexOf(t)<0)kinds.push(t);
+  });
+  h+=`<div class="card"><h3>НЕ ЕСКЕРІЛДІ</h3><div class="in">
+    <div class="kv"><span>Нарық түрлері</span><b class="sm">${esc(kinds.join(", "))}</b></div>
+    <div class="kv"><span>Контекст факторлары</span><b class="sm">${allNotes.length?esc(allNotes.join(", ")):"ерекше жағдай жоқ"}</b></div>
+    <p class="xs mut" style="margin:9px 0 0">Терең талданған ойындарда ауа райы голға және бұрыштамаға, төрешінің қаталдығы қағазға, жарақат саны сол команданың шабуылына түзету енгізді.</p>
+  </div></div>`;
+  h+=`<div style="margin:14px 16px 30px"><button class="btn-fill" onclick="buildExpress()">Басқаша құрастыру</button></div>`;
   return h;
 }
 
@@ -1937,11 +2107,14 @@ function openExpress(){
      <div style="display:flex;gap:6px;flex-wrap:wrap">${chips("t",[5,10,30,70,150],expTarget(),"setExpT")}</div>
      <div class="sm" style="font-weight:600;margin:12px 0 5px">Аяқ саны (ең көбі)</div>
      <div style="display:flex;gap:6px;flex-wrap:wrap">${chips("l",[3,4,5,6,8],expLegs(),"setExpL")}</div>
+     <div class="sm" style="font-weight:600;margin:12px 0 5px">Терең талданатын ойын <span class="mut xs">(ауа райы, төреші, бұрыштама, қағаз)</span></div>
+     <div style="display:flex;gap:6px;flex-wrap:wrap">${chips("d",[0,4,6,10],Number(ls("expdeep",6)),"setExpD")}</div>
      <button class="btn-fill" style="margin-top:12px" onclick="buildExpress()">Құрастыру</button>`;
   b.innerHTML=`<div class="empty"><b>Дайын</b>Мақсатты таңдап, «Құрастыру» түймесін бас. Лига модельдері бірінші рет 15–30 секунд алады.</div>`;
 }
 function setExpT(v){save("exptarget",v);openExpress()}
 function setExpL(v){save("explegs",v);openExpress()}
+function setExpD(v){save("expdeep",v);openExpress()}
 
 /* ══════════════ БОЛЖАМДАРЫМ ══════════════ */
 async function renderSaved(){
