@@ -1,0 +1,2099 @@
+<!doctype html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#EDE9DE">
+<title>BOLZHAM — футбол болжамы</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EDE9DE; --paper2:#F6F3EA; --ink:#191713; --ink2:#4A463D;
+  --rule:#C9C2AE; --rule2:#DBD5C4;
+  --pitch:#2E6F4E; --away:#2B4E8C; --draw:#8A8474; --stamp:#C7362B;
+  --gold:#B8860B;
+  --r:10px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--paper)}
+body{
+  margin:0;min-height:100dvh;background:var(--paper);color:var(--ink);
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:15px;line-height:1.45;
+  padding-bottom:calc(64px + env(safe-area-inset-bottom));
+  -webkit-font-smoothing:antialiased;
+}
+/* қағаз талшығы */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+  background-image:repeating-linear-gradient(0deg,rgba(25,23,19,.035) 0 1px,transparent 1px 3px);
+}
+#app{position:relative;z-index:1}
+h1,h2,h3,.disp{font-family:Oswald,Inter,sans-serif;font-weight:600;letter-spacing:.2px;margin:0}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+a{color:var(--away)}
+
+/* ── масттхед ── */
+.mast{padding:14px 16px 8px;border-bottom:2px solid var(--ink);display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+.mast .logo{font-family:Oswald;font-weight:700;font-size:28px;line-height:.9;letter-spacing:1.5px}
+.mast .logo em{font-style:normal;color:var(--stamp)}
+.mast .sub{font-size:11px;color:var(--ink2);letter-spacing:.6px;margin-top:3px}
+.mast .date{font-family:Oswald;font-size:13px;color:var(--ink2);text-align:right;line-height:1.2}
+
+/* ── күн жолағы ── */
+.days{display:flex;gap:6px;overflow-x:auto;padding:10px 12px;border-bottom:1px solid var(--rule);scrollbar-width:none}
+.days::-webkit-scrollbar{display:none}
+.day{flex:0 0 auto;min-width:56px;text-align:center;padding:6px 8px;border:1px solid var(--rule);border-radius:var(--r);background:var(--paper2)}
+.day b{display:block;font-family:Oswald;font-size:17px;line-height:1.1}
+.day span{font-size:10px;color:var(--ink2)}
+.day.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.day.on span{color:#CFC9B8}
+
+/* ── лига жолағы ── */
+.lgbar{display:flex;gap:8px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--rule)}
+.lgbar .chips{display:flex;gap:6px;overflow-x:auto;flex:1;scrollbar-width:none}
+.lgbar .chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;padding:5px 10px;border:1px solid var(--rule);border-radius:99px;font-size:12px;background:var(--paper2);white-space:nowrap}
+.chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.btn-ol{border:1px solid var(--ink);border-radius:var(--r);padding:6px 11px;font-size:12px;font-weight:600;white-space:nowrap}
+.btn-fill{background:var(--ink);color:var(--paper);border-radius:var(--r);padding:11px 14px;font-weight:600;width:100%;text-align:center}
+.btn-stamp{border:2px solid var(--stamp);color:var(--stamp);border-radius:var(--r);padding:9px 14px;font-weight:700;width:100%;text-align:center;letter-spacing:.4px}
+
+/* ── лига бөлімі ── */
+.sec{margin:18px 0 0}
+.sec-h{display:flex;align-items:center;gap:8px;padding:0 16px 6px}
+.sec-h .t{font-family:Oswald;font-size:14px;font-weight:600;letter-spacing:.8px}
+.sec-h .ln{flex:1;height:1px;background:var(--rule)}
+.sec-h .c{font-size:11px;color:var(--ink2)}
+
+/* ── ойын жолы ── */
+.mrow{display:grid;grid-template-columns:46px 1fr auto;gap:10px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--rule2);background:transparent;width:100%;text-align:left}
+.mrow:active{background:var(--paper2)}
+.mrow .tm{font-family:Oswald;font-size:14px;color:var(--ink2);line-height:1.15}
+.mrow .tm i{display:block;font-style:normal;font-size:10px;color:var(--stamp);font-family:Inter;font-weight:700}
+.mrow .tt{font-size:14px;font-weight:500;line-height:1.35}
+.mrow .tt .sc{font-variant-numeric:tabular-nums;font-weight:700}
+.mrow .tt .lg{font-size:11px;color:var(--ink2);font-weight:400;margin-top:2px}
+.p3{display:flex;gap:3px}
+.p3 s{text-decoration:none;display:block;width:34px;text-align:center;font-size:12px;font-weight:700;padding:3px 0;border-radius:5px;background:var(--paper2);border:1px solid var(--rule2);font-variant-numeric:tabular-nums;color:var(--ink2)}
+.p3 s.hi{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.p3 s.wait{width:auto;padding:3px 8px;font-weight:500}
+
+/* ── беттер ── */
+.page{display:none}
+.page.on{display:block}
+.full{position:fixed;inset:0;z-index:40;background:var(--paper);overflow-y:auto;display:none;flex-direction:column}
+.full.on{display:flex}
+.full::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;background-image:repeating-linear-gradient(0deg,rgba(25,23,19,.035) 0 1px,transparent 1px 3px)}
+.fhead{position:sticky;top:0;z-index:2;background:var(--paper);border-bottom:2px solid var(--ink);padding:12px 14px;display:flex;align-items:center;gap:12px}
+.fhead .bk{font-size:22px;line-height:1;width:30px}
+.fhead h2{font-size:17px;flex:1}
+.fbody{padding:0 0 30px;position:relative;z-index:1}
+
+/* ── карта ── */
+.card{margin:14px 16px;border:1px solid var(--rule);background:var(--paper2);border-radius:var(--r)}
+.card>h3{font-size:13px;letter-spacing:.7px;padding:11px 13px;border-bottom:1px solid var(--rule2)}
+.card .in{padding:13px}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dashed var(--rule2);font-size:14px}
+.kv:last-child{border:0}
+.kv b{font-variant-numeric:tabular-nums;font-weight:700}
+.mut{color:var(--ink2)}
+.sm{font-size:12px}
+.xs{font-size:11px}
+
+/* ── болжам беті ── */
+.vs{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:start;padding:16px 14px 6px}
+.vs .side{text-align:center}
+.vs img{width:52px;height:52px;object-fit:contain}
+.vs .nm{font-family:Oswald;font-size:15px;margin-top:6px;line-height:1.15}
+.vs .rl{font-size:10px;letter-spacing:1px;margin-top:2px}
+.vs .h .rl{color:var(--pitch)} .vs .a .rl{color:var(--away)}
+.vs .mid{font-family:Oswald;font-size:13px;color:var(--ink2);padding-top:18px;text-align:center}
+
+.bar3{display:flex;height:34px;border-radius:8px;overflow:hidden;border:1px solid var(--ink);margin:12px 16px 6px}
+.bar3 div{display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;font-variant-numeric:tabular-nums;min-width:0;overflow:hidden}
+.bar3 .b1{background:var(--pitch)} .bar3 .bx{background:var(--draw)} .bar3 .b2{background:var(--away)}
+.leg{display:flex;justify-content:space-between;padding:0 16px;font-size:11px;color:var(--ink2)}
+
+.stamp{margin:14px 16px;border:2px solid var(--stamp);border-radius:var(--r);padding:12px 14px;position:relative}
+.stamp .lb{font-size:10px;letter-spacing:2px;color:var(--stamp);font-weight:700}
+.stamp .vl{font-family:Oswald;font-size:26px;line-height:1.1;margin-top:2px}
+.stamp .nt{font-size:12px;color:var(--ink2);margin-top:4px}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cell{border:1px solid var(--rule2);border-radius:8px;padding:9px 10px;background:var(--paper)}
+.cell .l{font-size:10px;color:var(--ink2);letter-spacing:.5px}
+.cell .v{font-family:Oswald;font-size:19px;margin-top:1px}
+
+.form{display:flex;gap:4px;flex-wrap:wrap}
+.form s{text-decoration:none;width:21px;height:21px;border-radius:5px;display:grid;place-items:center;font-size:11px;font-weight:800;color:#fff}
+.form s.W{background:var(--pitch)} .form s.D{background:var(--draw)} .form s.L{background:var(--stamp)}
+
+.scores{display:flex;flex-direction:column;gap:5px}
+.scr{display:grid;grid-template-columns:52px 1fr 44px;gap:8px;align-items:center;font-size:13px}
+.scr .bx{height:7px;background:var(--rule2);border-radius:4px;overflow:hidden}
+.scr .bx i{display:block;height:100%;background:var(--ink);border-radius:4px}
+.scr b{font-variant-numeric:tabular-nums;text-align:right}
+
+/* ── лига таңдау ── */
+.lgrow{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--rule2);width:100%;text-align:left}
+.lgrow .n{flex:1;font-size:14px}
+.lgrow .bx2{width:22px;height:22px;border:1.5px solid var(--rule);border-radius:6px;display:grid;place-items:center;font-size:13px;color:transparent}
+.lgrow.on .bx2{background:var(--pitch);border-color:var(--pitch);color:#fff}
+.srch{margin:12px 16px;display:flex;gap:8px}
+.srch input{flex:1;padding:10px 12px;border:1px solid var(--rule);border-radius:var(--r);background:var(--paper2);font:inherit;color:var(--ink)}
+
+/* ── табтар ── */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;display:grid;grid-template-columns:repeat(3,1fr);
+  background:var(--paper);border-top:2px solid var(--ink);padding-bottom:env(safe-area-inset-bottom)}
+.tab{padding:9px 4px 8px;text-align:center;color:var(--ink2)}
+.tab svg{display:block;margin:0 auto 2px;width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8}
+.tab span{font-size:10px;letter-spacing:.3px}
+.tab.on{color:var(--ink);font-weight:600}
+
+.empty{padding:44px 26px;text-align:center;color:var(--ink2);font-size:14px}
+.empty b{display:block;font-family:Oswald;font-size:17px;color:var(--ink);margin-bottom:6px}
+.load{padding:30px;text-align:center;color:var(--ink2);font-size:13px}
+.sk{height:52px;border-bottom:1px solid var(--rule2);background:linear-gradient(90deg,transparent,rgba(25,23,19,.05),transparent);background-size:200% 100%;animation:sh 1.2s infinite}
+@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+#toast{position:fixed;left:50%;bottom:78px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);
+  padding:9px 16px;border-radius:99px;font-size:13px;z-index:60;opacity:0;pointer-events:none;transition:.22s}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+#splash{position:fixed;inset:0;z-index:99;background:var(--paper);display:grid;place-items:center;transition:opacity .35s}
+#splash.off{opacity:0;pointer-events:none}
+#splash .w{text-align:center}
+#splash .lg{font-family:Oswald;font-weight:700;font-size:40px;letter-spacing:3px}
+#splash .lg em{font-style:normal;color:var(--stamp)}
+#splash .ln{height:2px;background:var(--ink);width:0;margin:10px auto 0;animation:gr .9s ease forwards}
+@keyframes gr{to{width:150px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div id="splash"><div class="w">
+  <div class="lg">BOL<em>Z</em>HAM</div>
+  <div class="ln"></div>
+</div></div>
+
+<div id="app">
+
+  <div class="mast">
+    <div>
+      <div class="logo">BOL<em>Z</em>HAM</div>
+      <div class="sub" id="mastsub">футбол болжамы</div>
+    </div>
+    <div class="date" id="mastdate"></div>
+  </div>
+
+  <!-- ОЙЫНДАР -->
+  <section class="page on" id="p-games">
+    <div class="days" id="days"></div>
+    <div class="lgbar">
+      <div class="chips" id="lgchips"></div>
+      <button class="btn-ol" onclick="openLeagues()">Лигалар</button>
+      <button class="btn-ol" style="border-color:var(--stamp);color:var(--stamp)" onclick="openExpress()">Экспресс</button>
+    </div>
+    <div id="glist"></div>
+  </section>
+
+  <!-- БОЛЖАМДАРЫМ -->
+  <section class="page" id="p-saved">
+    <div id="savedbody"></div>
+  </section>
+
+  <!-- БАПТАУ -->
+  <section class="page" id="p-set">
+    <div class="card"><h3>ДЕРЕККӨЗ</h3><div class="in">
+      <div class="kv"><span>Ойын мен нәтиже</span><b class="sm">ESPN ашық API</b></div>
+      <div class="kv"><span>Кэш</span><b class="sm" id="cachesize">—</b></div>
+      <div class="kv"><span>Нұсқа</span><b class="sm">v6.0</b></div>
+    </div></div>
+    <div class="card"><h3>МОДЕЛЬ</h3><div class="in">
+      <p class="sm mut" style="margin:0 0 10px">Пуассон + Диксон-Коулс түзетуі. Әр команданың соңғы 12 ойыны алынып, жаңа ойындарға көбірек салмақ беріледі. Одан шабуыл/қорғаныс күші, үй артықшылығы есептеліп, 0:0-ден 8:8-ге дейінгі барлық есеп ықтималдығы шығарылады.</p>
+      <div class="kv"><span>Үй артықшылығы</span><b class="num" id="hfaVal">1.12</b></div>
+      <input type="range" id="hfa" min="1" max="1.35" step="0.01" value="1.12" style="width:100%;accent-color:#2E6F4E">
+      <div class="kv" style="margin-top:8px"><span>Талданатын ойын саны</span><b class="num" id="nmVal">12</b></div>
+      <input type="range" id="nm" min="6" max="20" step="1" value="12" style="width:100%;accent-color:#2E6F4E">
+    </div></div>
+    <div class="card"><h3>ДЕРЕККӨЗ</h3><div class="in">
+      <div class="kv" style="border:0"><span>Негізгі дереккөз</span>
+        <select id="srcsel" onchange="setSrc(this.value)" style="font:inherit;padding:7px 10px;border:1px solid var(--rule);border-radius:8px;background:var(--paper)">
+          <option value="ss">SStats (толық)</option>
+          <option value="espn">ESPN</option>
+        </select></div>
+      <p class="sm mut" style="margin:6px 0 10px">SStats: төреші, стадион, құрам, жарақат, xG, Glicko, коэффициент — бәрі бір жерде, күннің барлық ойыны бір сұраныспен. Кілтсіз де жұмыс істейді (IP-ге минутына 30 сұраныс).</p>
+      <input id="sskey" placeholder="SStats кілті (міндетті емес)" style="width:100%;padding:10px 12px;border:1px solid var(--rule);border-radius:10px;background:var(--paper);font:inherit">
+      <button class="btn-ol" style="width:100%;margin-top:8px" onclick="saveSS()">Сақтау</button>
+    </div></div>
+    <div class="card"><h3>API-FOOTBALL (қосымша дерек)</h3><div class="in">
+      <p class="sm mut" style="margin:0 0 10px">Төреші, стадион, жарияланған құрам, жарақат тізімі осы арқылы келеді. Тегін тіркелу: dashboard.api-football.com — тәулігіне 100 сұраныс. Кілт тек осы телефонда сақталады.</p>
+      <input id="afkey" placeholder="API кілті" style="width:100%;padding:10px 12px;border:1px solid var(--rule);border-radius:10px;background:var(--paper);font:inherit;margin-bottom:8px">
+      <input id="afproxy" placeholder="Прокси URL (міндетті емес)" style="width:100%;padding:10px 12px;border:1px solid var(--rule);border-radius:10px;background:var(--paper);font:inherit">
+      <div class="kv" style="margin-top:10px"><span>Бүгін жұмсалған сұраныс</span><b id="afq">0 / 100</b></div>
+      <button class="btn-ol" style="width:100%;margin-top:8px" onclick="saveAF()">Сақтау</button>
+    </div></div>
+    <div class="card"><h3>ДЕРЕКТІ ТАЗАЛАУ</h3><div class="in">
+      <div class="kv" style="border:0;padding-bottom:6px"><span>Лига моделі (бүкіл маусым бойынша, дәлірек)</span>
+        <input type="checkbox" id="leaguefit" style="width:22px;height:22px;accent-color:#2E6F4E"></div>
+      <div class="kv" style="border:0;padding-bottom:12px"><span>Болжам ашылғанда терең талдау өзі жүктелсін</span>
+        <input type="checkbox" id="autodeep" style="width:22px;height:22px;accent-color:#2E6F4E"></div>
+      <button class="btn-ol" style="width:100%" onclick="clearCache()">Кэшті тазалау</button>
+      <p class="xs mut" style="margin:10px 0 0">Сақталған болжамдар мен лига таңдауың өшпейді.</p>
+    </div></div>
+    <div class="card" style="border-color:var(--stamp)"><h3 style="color:var(--stamp)">ЕСІҢДЕ БОЛСЫН</h3><div class="in">
+      <p class="sm" style="margin:0">Бұл — ықтималдық есептейтін құрал, кепілдік емес. Ашық деректе (гол, форма) құрылған модель 1X2 бойынша шамамен 50–55% дәлдік береді. Құрам, жарақат, мотивация ескерілмейді. Ақшаңды тәуекелге тікпе.</p>
+    </div></div>
+  </section>
+
+</div>
+
+<!-- ЛИГА ТАҢДАУ -->
+<div class="full" id="f-leagues">
+  <div class="fhead"><button class="bk" onclick="closeFull('f-leagues')">←</button><h2>Лигалар</h2>
+    <span class="xs mut" id="lgcount"></span></div>
+  <div class="fbody">
+    <div class="srch"><input id="lgq" placeholder="Лига немесе ел іздеу" oninput="renderLeagues()"></div>
+    <div id="lglist"></div>
+  </div>
+</div>
+
+<!-- ЭКСПРЕСС -->
+<div class="full" id="f-express">
+  <div class="fhead"><button class="bk" onclick="closeFull('f-express')">←</button><h2>Экспресс</h2></div>
+  <div class="fbody">
+    <div style="margin:14px 16px" id="expctl"></div>
+    <div id="expbody"></div>
+  </div>
+</div>
+
+<!-- БОЛЖАМ -->
+<div class="full" id="f-pred">
+  <div class="fhead"><button class="bk" onclick="closeFull('f-pred')">←</button><h2 id="predtitle">Болжам</h2></div>
+  <div class="fbody" id="predbody"></div>
+</div>
+
+<nav class="tabs">
+  <button class="tab on" data-t="p-games" onclick="go('p-games')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v4M12 17v4M4 9l4 2M20 9l-4 2M8 19l2-4M16 19l-2-4"/></svg><span>Ойындар</span></button>
+  <button class="tab" data-t="p-saved" onclick="go('p-saved')">
+    <svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg><span>Болжамдарым</span></button>
+  <button class="tab" data-t="p-set" onclick="go('p-set')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg><span>Баптау</span></button>
+</nav>
+
+<div id="toast"></div>
+
+<script>
+/* ══════════════ ДЕРЕК: ЛИГАЛАР ══════════════ */
+const LG=[
+["Еуропа · үздік лигалар",[["eng.1","Англия — Премьер-лига"],["esp.1","Испания — Ла Лига"],["ita.1","Италия — Серия А"],["ger.1","Германия — Бундеслига"],["fra.1","Франция — Лига 1"]]],
+["Еуропа кубоктары",[["uefa.champions","Чемпиондар лигасы"],["uefa.europa","Еуропа лигасы"],["uefa.europa.conf","Конференция лигасы"],["uefa.super_cup","УЕФА Суперкубогы"],["uefa.champions_qual","ЧЛ іріктеуі"],["uefa.europa_qual","ЕЛ іріктеуі"]]],
+["Англия",[["eng.2","Чемпионшип"],["eng.3","Лига 1"],["eng.4","Лига 2"],["eng.5","Ұлттық лига"],["eng.fa","FA кубогы"],["eng.league_cup","Карабао кубогы"],["eng.charity","Қоғам қалқаны"],["eng.w.1","Әйелдер суперлигасы"]]],
+["Испания · Германия · Италия · Франция",[["esp.2","Испания — Ла Лига 2"],["esp.copa_del_rey","Испания — Король кубогы"],["esp.super_cup","Испания — Суперкубок"],["ger.2","Германия — 2. Бундеслига"],["ger.dfb_pokal","Германия — DFB кубогы"],["ger.super_cup","Германия — Суперкубок"],["ita.2","Италия — Серия B"],["ita.coppa_italia","Италия — Кубок"],["ita.super_cup","Италия — Суперкубок"],["fra.2","Франция — Лига 2"],["fra.coupe_de_france","Франция — Кубок"],["fra.super_cup","Франция — Суперкубок"]]],
+["Еуропа · басқа елдер",[["ned.1","Нидерланд — Эредивизи"],["ned.2","Нидерланд — 1-дивизион"],["ned.cup","Нидерланд — KNVB кубогы"],["por.1","Португалия — Примейра"],["por.taca.portugal","Португалия — Кубок"],["bel.1","Бельгия — Про лига"],["tur.1","Түркия — Суперлига"],["gre.1","Грекия — Суперлига"],["aut.1","Австрия — Бундеслига"],["sui.1","Швейцария — Суперлига"],["sco.1","Шотландия — Премьершип"],["sco.2","Шотландия — Чемпионшип"],["sco.tennents","Шотландия — Кубок"],["den.1","Дания — Суперлига"],["nor.1","Норвегия — Элитсериен"],["swe.1","Швеция — Аллсвенскан"],["rus.1","Ресей — Премьер-лига"],["ukr.1","Украина — Премьер-лига"],["pol.1","Польша — Экстракласа"],["cze.1","Чехия — 1-лига"],["cro.1","Хорватия — HNL"],["srb.1","Сербия — Суперлига"],["rou.1","Румыния — Лига 1"],["hun.1","Венгрия — NB I"],["bul.1","Болгария — Парва лига"],["isr.1","Израиль — Лигат ха-Аль"],["cyp.1","Кипр — 1-дивизион"],["irl.1","Ирландия — Премьер-дивизион"]]],
+["Азия",[["afc.champions","АФК Чемпиондар лигасы"],["afc.cup","АФК Кубогы"],["afc.asian.cup","Азия кубогы"],["ksa.1","Сауд Арабиясы — Про лига"],["ksa.kings.cup","Сауд Арабиясы — Король кубогы"],["uae.1","БАӘ — Про лига"],["qat.1","Катар — Жұлдыздар лигасы"],["jpn.1","Жапония — J-лига"],["kor.1","Корея — K-лига"],["chn.1","Қытай — Суперлига"],["ind.1","Үндістан — Суперлига"],["tha.1","Тайланд — 1-лига"],["idn.1","Индонезия — Суперлига"],["mys.1","Малайзия — Суперлига"],["sgp.1","Сингапур — Премьер-лига"],["aus.1","Австралия — A-лига"]]],
+["Америка",[["usa.1","АҚШ — MLS"],["usa.open","АҚШ — Ашық кубок"],["usa.nwsl","АҚШ — NWSL"],["usa.usl.1","АҚШ — USL Чемпионшип"],["mex.1","Мексика — Лига MX"],["mex.2","Мексика — Экспансион"],["concacaf.champions","КОНКАКАФ Чемпиондар кубогы"],["concacaf.leagues.cup","Лигалар кубогы"],["concacaf.gold","Алтын кубок"],["concacaf.nations.league","КОНКАКАФ Ұлттар лигасы"]]],
+["Оңтүстік Америка",[["bra.1","Бразилия — Серия А"],["bra.2","Бразилия — Серия B"],["bra.copa_do_brazil","Бразилия — Кубок"],["arg.1","Аргентина — Лига Профессионал"],["arg.copa","Аргентина — Кубок"],["conmebol.libertadores","Либертадорес кубогы"],["conmebol.sudamericana","Судамерикана"],["conmebol.recopa","Рекопа"],["chi.1","Чили — Примера"],["col.1","Колумбия — Примера А"],["uru.1","Уругвай — Примера"],["per.1","Перу — Лига 1"],["par.1","Парагвай — Примера"],["ecu.1","Эквадор — ЛигаПро"],["bol.1","Боливия — Профессионал лигасы"],["ven.1","Венесуэла — Примера"]]],
+["Африка",[["caf.champions","КАФ Чемпиондар лигасы"],["caf.confed","КАФ Конфедерация кубогы"],["caf.nations","Африка ұлттар кубогы"],["caf.nations_qual","АҰК іріктеуі"],["rsa.1","ОАР — Премьершип"],["egy.1","Мысыр — Премьер-лига"],["nga.1","Нигерия — Профессионал лигасы"],["gha.1","Гана — Премьер-лига"],["mar.1","Марокко — Ботола"]]],
+["Құрама командалар",[["fifa.world","Әлем кубогы"],["fifa.worldq.uefa","ӘК іріктеу — УЕФА"],["fifa.worldq.afc","ӘК іріктеу — АФК"],["fifa.worldq.caf","ӘК іріктеу — КАФ"],["fifa.worldq.conmebol","ӘК іріктеу — КОНМЕБОЛ"],["fifa.worldq.concacaf","ӘК іріктеу — КОНКАКАФ"],["uefa.euro","Еуро"],["uefa.euroq","Еуро іріктеуі"],["uefa.nations","Ұлттар лигасы"],["conmebol.america","Копа Америка"],["fifa.cwc","Клубтық әлем кубогы"],["fifa.friendly","Халықаралық жолдастық"],["club.friendly","Клубтық жолдастық"]]]
+];
+const LGNAME={};LG.forEach(g=>g[1].forEach(l=>LGNAME[l[0]]=l[1]));
+const DEF=["eng.1","esp.1","ita.1","ger.1","fra.1","uefa.champions","uefa.europa","ned.1","por.1","tur.1","ksa.1","usa.1","bra.1","arg.1"];
+
+/* ══════════════ КҮЙ ══════════════ */
+const K="bz.";
+const S={
+  day:ymd(new Date()),
+  leagues:ls("leagues",DEF),
+  hfa:ls("hfa",1.12),
+  nm:ls("nm",12),
+  saved:ls("saved",[])
+};
+function ls(k,d){try{const v=localStorage.getItem(K+k);return v===null?d:JSON.parse(v)}catch(e){return d}}
+function save(k,v){try{localStorage.setItem(K+k,JSON.stringify(v))}catch(e){}}
+
+/* ══════════════ КӨМЕКШІ ══════════════ */
+function ymd(d){return d.getFullYear()+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0")}
+function fromYmd(s){return new Date(+s.slice(0,4),+s.slice(4,6)-1,+s.slice(6,8))}
+function addDays(s,n){const d=fromYmd(s);d.setDate(d.getDate()+n);return ymd(d)}
+const MON=["қаң","ақп","нау","сәу","мам","мау","шіл","там","қыр","қаз","қар","жел"];
+const WD=["жс","дс","сс","ср","бс","жм","сб"];
+function fmtDate(s){const d=fromYmd(s);return d.getDate()+" "+MON[d.getMonth()]}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function toast(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("on");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("on"),2200)}
+function pct(x){return Math.round(x*100)}
+
+/* кэш */
+function cget(k,ttl){try{const r=JSON.parse(localStorage.getItem(K+"c."+k));if(!r)return null;if(Date.now()-r.t>ttl)return null;return r.v}catch(e){return null}}
+function cset(k,v){try{localStorage.setItem(K+"c."+k,JSON.stringify({t:Date.now(),v}))}catch(e){pruneCache();try{localStorage.setItem(K+"c."+k,JSON.stringify({t:Date.now(),v}))}catch(e2){}}}
+function pruneCache(){const ks=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith(K+"c."))ks.push(k)}ks.slice(0,Math.ceil(ks.length/2)).forEach(k=>localStorage.removeItem(k))}
+function setSrc(v){save("src",v);renderChips();renderDays();loadGames();toast(v==="ss"?"SStats қосылды":"ESPN қосылды")}
+function saveSS(){save("sskey",document.getElementById("sskey").value.trim());toast("Сақталды")}
+function saveAF(){
+  save("afkey",document.getElementById("afkey").value.trim());
+  save("afproxy",document.getElementById("afproxy").value.trim());
+  afqShow();
+  toast(afOn()?"Кілт сақталды":"Кілт өшірілді");
+}
+function afqShow(){
+  const q=afQuota();
+  document.getElementById("afq").textContent=q.n+" / 100";
+}
+function clearCache(){const ks=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith(K+"c."))ks.push(k)}ks.forEach(k=>localStorage.removeItem(k));cacheSize();toast("Кэш тазаланды")}
+function cacheSize(){let n=0,b=0;for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith(K+"c.")){n++;b+=(localStorage.getItem(k)||"").length}}
+  document.getElementById("cachesize").textContent=n+" жазба · "+Math.round(b/1024)+" КБ"}
+
+async function jget(url){
+  const r=await fetch(url,{cache:"no-store"});
+  if(!r.ok) throw new Error("HTTP "+r.status);
+  return r.json();
+}
+async function pool(items,n,fn){
+  const out=new Array(items.length);let i=0;
+  await Promise.all(Array.from({length:Math.min(n,items.length)},async()=>{
+    while(i<items.length){const k=i++;try{out[k]=await fn(items[k],k)}catch(e){out[k]=null}}
+  }));
+  return out;
+}
+
+/* ══════════════ ESPN ══════════════ */
+const SITE="https://site.api.espn.com/apis/site/v2/sports/soccer/";
+
+function distEvent(ev,lg){
+  const c=(ev.competitions&&ev.competitions[0])||{};
+  const cs=c.competitors||[];
+  const H=cs.find(x=>x.homeAway==="home")||cs[0]||{};
+  const A=cs.find(x=>x.homeAway==="away")||cs[1]||{};
+  const st=(ev.status&&ev.status.type)||{};
+  const d=new Date(ev.date);
+  return{
+    id:ev.id,lg:lg,iso:ev.date,ymd:ymd(d),
+    hm:(d.getHours()<10?"0":"")+d.getHours()+":"+(d.getMinutes()<10?"0":"")+d.getMinutes(),
+    hId:H.id,hN:(H.team&&(H.team.shortDisplayName||H.team.displayName))||"?",hL:(H.team&&H.team.logo)||"",hS:H.score,
+    aId:A.id,aN:(A.team&&(A.team.shortDisplayName||A.team.displayName))||"?",aL:(A.team&&A.team.logo)||"",aS:A.score,
+    state:st.state||"pre",done:!!st.completed,det:st.shortDetail||"",
+    odds:pickOdds(c.odds)
+  };
+}
+function pickOdds(o){
+  if(!o||!o.length)return null;
+  const x=o[0];
+  const g=v=>v&&v.moneyLine!=null?v.moneyLine:(v&&v.odds!=null?v.odds:null);
+  const h=g(x.homeTeamOdds),a=g(x.awayTeamOdds),d=g(x.drawOdds);
+  if(h==null||a==null)return null;
+  return{h:toProb(h),d:d==null?null:toProb(d),a:toProb(a),ou:x.overUnder!=null?x.overUnder:null};
+}
+function toProb(v){
+  const n=Number(v);if(!isFinite(n)||n===0)return null;
+  if(n>=100)return 100/(n+100);
+  if(n<=-100)return -n/(-n+100);
+  if(n>1.01&&n<60)return 1/n;
+  return null;
+}
+
+async function getDay(lg,day){
+  const key="d."+lg+"."+day, live=day===ymd(new Date());
+  const c=cget(key,live?4*60*1000:6*3600*1000);
+  if(c)return c;
+  const prev=addDays(day,-1);
+  const [a,b]=await Promise.all([
+    jget(SITE+lg+"/scoreboard?dates="+day).catch(()=>null),
+    jget(SITE+lg+"/scoreboard?dates="+prev).catch(()=>null)
+  ]);
+  const seen={},out=[];
+  [a,b].forEach(r=>{(r&&r.events||[]).forEach(ev=>{
+    if(seen[ev.id])return;seen[ev.id]=1;
+    const e=distEvent(ev,lg);
+    if(e.ymd===day)out.push(e);
+  })});
+  out.sort((x,y)=>x.iso<y.iso?-1:1);
+  cset(key,out);
+  return out;
+}
+
+function parseSched(r,teamId,out,seen){
+  (r&&r.events||[]).forEach(ev=>{
+    if(seen[ev.id])return;
+    const cp=(ev.competitions&&ev.competitions[0])||{};
+    const st=(ev.status&&ev.status.type)||{};
+    if(!st.completed)return;
+    const cs=cp.competitors||[];if(cs.length<2)return;
+    const me=cs.find(x=>String(x.id)===String(teamId));
+    const op=cs.find(x=>x!==me);
+    if(!me||!op)return;
+    const gf=Number(me.score&&me.score.value!=null?me.score.value:me.score),
+          ga=Number(op.score&&op.score.value!=null?op.score.value:op.score);
+    if(!isFinite(gf)||!isFinite(ga))return;
+    seen[ev.id]=1;
+    out.push({id:ev.id,d:ev.date,gf,ga,home:me.homeAway==="home",
+      opId:op.id,opN:(op.team&&(op.team.shortDisplayName||op.team.displayName))||"?",
+      lgN:(ev.league&&ev.league.abbreviation)||(ev.season&&ev.season.slug)||""});
+  });
+}
+/* ағымдағы + өткен маусымдарды бірге тартады — маусым басында дерек жетпей қалмас үшін */
+async function getForm(lg,teamId){
+  const key="f3."+lg+"."+teamId;
+  const c=cget(key,6*3600*1000);
+  if(c)return c;
+  const base=SITE+lg+"/teams/"+teamId+"/schedule";
+  const yr=new Date().getFullYear();
+  const out=[],seen={};
+  const tries=[base,base+"?season="+yr,base+"?season="+(yr-1),base+"?season="+(yr-2)];
+  for(let i=0;i<tries.length;i++){
+    let r=null;
+    try{r=await jget(tries[i])}catch(e){}
+    if(r)parseSched(r,teamId,out,seen);
+    if(out.length>=16)break;
+  }
+  out.sort((x,y)=>x.d<y.d?1:-1);
+  const r2=out.slice(0,30);
+  cset(key,r2);
+  return r2;
+}
+
+/* ══════════════ МОДЕЛЬ ══════════════ */
+const FACT=[1];for(let i=1;i<20;i++)FACT[i]=FACT[i-1]*i;
+function pois(k,l){return Math.exp(-l)*Math.pow(l,k)/FACT[k]}
+function tau(x,y,l,m,rho){
+  if(x===0&&y===0)return 1-l*m*rho;
+  if(x===0&&y===1)return 1+l*rho;
+  if(x===1&&y===0)return 1+m*rho;
+  if(x===1&&y===1)return 1-rho;
+  return 1;
+}
+function wavg(arr,pick){
+  let s=0,w=0;
+  arr.forEach((m,i)=>{const k=Math.pow(0.86,i);s+=pick(m)*k;w+=k});
+  return w?s/w:null;
+}
+function shrink(x,n,k){return 1+(x-1)*n/(n+k)}
+
+function model(hf,af,opt){
+  const N=opt.nm, HFA=opt.hfa;
+  const H=hf.slice(0,N), A=af.slice(0,N);
+  const all=H.concat(A);
+  if(!opt.force&&all.length<3)return null;
+  let tot=0;all.forEach(m=>tot+=m.gf);
+  let lav=tot/all.length;
+  if(!isFinite(lav)||lav<=0.2)lav=1.35;
+  lav=Math.min(2.4,Math.max(0.7,lav));
+
+  const hGF=wavg(H,m=>m.gf), hGA=wavg(H,m=>m.ga);
+  const aGF=wavg(A,m=>m.gf), aGA=wavg(A,m=>m.ga);
+  if(!opt.force&&(hGF==null||aGF==null))return null;
+
+  const attH=shrink((hGF==null?lav:hGF)/lav,H.length,4), defH=shrink((hGA==null?lav:hGA)/lav,H.length,4);
+  const attA=shrink((aGF==null?lav:aGF)/lav,A.length,4), defA=shrink((aGA==null?lav:aGA)/lav,A.length,4);
+
+  let lh=opt.force?opt.force.lh:lav*attH*defA*HFA;
+  let la=opt.force?opt.force.la:lav*attA*defH*(2-HFA);
+  lh=Math.min(4.5,Math.max(.18,lh));
+  la=Math.min(4.5,Math.max(.18,la));
+
+  const rho=opt.force&&opt.force.rho!=null?opt.force.rho:-0.06, MX=9;
+  const M=[];let p1=0,px=0,p2=0,u25=0,btts=0,sum=0;
+  for(let x=0;x<MX;x++){M[x]=[];for(let y=0;y<MX;y++){
+    const p=pois(x,lh)*pois(y,la)*tau(x,y,lh,la,rho);
+    M[x][y]=p;sum+=p;
+  }}
+  const top=[];
+  for(let x=0;x<MX;x++)for(let y=0;y<MX;y++){
+    const p=M[x][y]/sum;M[x][y]=p;
+    if(x>y)p1+=p;else if(x===y)px+=p;else p2+=p;
+    if(x+y<=2)u25+=p;
+    if(x>0&&y>0)btts+=p;
+    top.push({x,y,p});
+  }
+  top.sort((a,b)=>b.p-a.p);
+  // H2H
+  const h2h=hf.filter(m=>String(m.opId)===String(opt.aId)).slice(0,6);
+  return{lh,la,rho,src:opt.force?"league":"form",p1,px,p2,o25:1-u25,u25,btts,top:top.slice(0,6),
+    n:opt.force?(opt.force.n||H.length+A.length):H.length+A.length,nH:H.length,nA:A.length,lav,h2h,
+    formH:H.slice(0,6),formA:A.slice(0,6)};
+}
+function res(m){return m.gf>m.ga?"W":m.gf===m.ga?"D":"L"}
+function conf(n){return n>=18?["Жоғары",1]:n>=12?["Орташа",2]:["Төмен",3]}
+
+
+/* ══════════════════════════════════════════
+   ЛИГА МОДЕЛІ (v4.0) — уақыт салмағы бар Диксон-Коулс MLE
+   Бүкіл маусымның ойыны бойынша әр команданың шабуыл/қорғаныс рейтингі
+   ══════════════════════════════════════════ */
+async function leagueTeams(lg){
+  const key="lt."+lg, c=cget(key,7*24*3600*1000);
+  if(c)return c;
+  const r=await jget(SITE+lg+"/teams");
+  const arr=[];
+  (((r.sports||[])[0]||{}).leagues||[]).forEach(L=>(L.teams||[]).forEach(t=>{
+    if(t.team&&t.team.id)arr.push({id:String(t.team.id),n:t.team.shortDisplayName||t.team.displayName});
+  }));
+  cset(key,arr);
+  return arr;
+}
+async function leagueMatches(lg,prog){
+  const key="lm."+lg, c=cget(key,24*3600*1000);
+  if(c)return c;
+  const ts=await leagueTeams(lg);
+  if(ts.length<4)return null;
+  let d=0;
+  const forms=await pool(ts,5,async t=>{
+    const f=await getForm(lg,t.id).catch(()=>[]);
+    d++;prog&&prog(d,ts.length);
+    return f;
+  });
+  const seen={},ms=[];
+  ts.forEach((t,i)=>(forms[i]||[]).forEach(m=>{
+    if(seen[m.id])return;seen[m.id]=1;
+    ms.push({d:String(m.d).slice(0,10),
+      h:String(m.home?t.id:m.opId), a:String(m.home?m.opId:t.id),
+      hg:m.home?m.gf:m.ga, ag:m.home?m.ga:m.gf});
+  }));
+  ms.sort((x,y)=>x.d<y.d?1:-1);
+  const out=ms.slice(0,800);
+  cset(key,out);
+  return out;
+}
+function fitDC(ms,XI){
+  XI=XI||0.0045;
+  const now=Date.now(), ids=[], idx={};
+  ms.forEach(m=>[m.h,m.a].forEach(x=>{if(idx[x]==null){idx[x]=ids.length;ids.push(x)}}));
+  const N=ids.length;
+  const att=new Float64Array(N), def=new Float64Array(N), tw=new Float64Array(N);
+  let g=0.25,b=0,totW=0;
+  const W=ms.map(m=>{
+    const w=Math.exp(-XI*((now-new Date(m.d).getTime())/86400000));
+    tw[idx[m.h]]+=w;tw[idx[m.a]]+=w;totW+=w;return w;
+  });
+  let sg=0;ms.forEach((m,k)=>sg+=W[k]*(m.hg+m.ag));
+  b=Math.log(Math.max(.2,sg/(2*totW)));
+  for(let it=0;it<500;it++){
+    const ga=new Float64Array(N), gd=new Float64Array(N);
+    let gg=0,gb=0;
+    for(let k=0;k<ms.length;k++){
+      const m=ms[k],w=W[k],i=idx[m.h],j=idx[m.a];
+      const lam=Math.exp(b+att[i]+def[j]+g), mu=Math.exp(b+att[j]+def[i]);
+      const rh=w*(m.hg-lam), ra=w*(m.ag-mu);
+      ga[i]+=rh;gd[j]+=rh;gg+=rh;gb+=rh;
+      ga[j]+=ra;gd[i]+=ra;gb+=ra;
+    }
+    const lr=0.6/(1+it*0.02);
+    for(let i=0;i<N;i++){const t=Math.max(1e-6,tw[i]);att[i]+=lr*ga[i]/t;def[i]+=lr*gd[i]/t}
+    g+=lr*gg/Math.max(1e-6,totW);
+    b+=lr*gb/Math.max(1e-6,2*totW);
+    let ma=0,md=0;for(let i=0;i<N;i++){ma+=att[i];md+=def[i]}
+    ma/=N;md/=N;
+    for(let i=0;i<N;i++){att[i]-=ma;def[i]-=md}
+    b+=ma+md;
+  }
+  let bestR=0,bestL=-1e18;
+  for(let r=-0.20;r<=0.1001;r+=0.01){
+    let L=0,bad=false;
+    for(let k=0;k<ms.length;k++){
+      const m=ms[k],i=idx[m.h],j=idx[m.a];
+      const lam=Math.exp(b+att[i]+def[j]+g), mu=Math.exp(b+att[j]+def[i]);
+      const t=tau(m.hg,m.ag,lam,mu,r);
+      if(t<=0){bad=true;break}
+      L+=W[k]*Math.log(t);
+    }
+    if(!bad&&L>bestL){bestL=L;bestR=r}
+  }
+  return{idx,att,def,g,b,rho:bestR,n:ms.length,teams:N};
+}
+function fitRank(F,id,arr){
+  const i=F.idx[String(id)];
+  if(i==null)return null;
+  const v=arr[i], all=Array.from(arr).sort((a,b)=>b-a);
+  return{v,rank:all.indexOf(v)+1,of:arr.length};
+}
+function fitLambdas(F,hId,aId){
+  const i=F.idx[String(hId)], j=F.idx[String(aId)];
+  if(i==null||j==null)return null;
+  return{lh:Math.exp(F.b+F.att[i]+F.def[j]+F.g),
+         la:Math.exp(F.b+F.att[j]+F.def[i]),
+         rho:F.rho};
+}
+function fitCard(F,e){
+  const ah=fitRank(F,e.hId,F.att), aa=fitRank(F,e.aId,F.att);
+  const dh=fitRank(F,e.hId,F.def), da=fitRank(F,e.aId,F.def);
+  const sh=x=>(x.v>=0?"+":"")+x.v.toFixed(2)+' <span class="mut xs">'+x.rank+"/"+x.of+"</span>";
+  if(!ah||!aa)return "";
+  return `<div class="card"><h3>ЛИГА РЕЙТИНГІ</h3><div class="in">
+    <div class="kv"><span>${esc(e.hN)} — шабуыл</span><b>${sh(ah)}</b></div>
+    <div class="kv"><span>${esc(e.hN)} — қорғаныс</span><b>${sh(dh)}</b></div>
+    <div class="kv"><span>${esc(e.aN)} — шабуыл</span><b>${sh(aa)}</b></div>
+    <div class="kv"><span>${esc(e.aN)} — қорғаныс</span><b>${sh(da)}</b></div>
+    <div class="kv"><span>Лига бойынша үй артықшылығы</span><b>${(Math.exp(F.g)*100-100).toFixed(0)}%</b></div>
+    <div class="kv"><span>Талданған ойын</span><b>${F.n} · ${F.teams} команда</b></div>
+    <p class="xs mut" style="margin:9px 0 0">Рейтинг лиганың барлық ойынынан максималды ықтималдық әдісімен есептелді; ескі ойындардың салмағы автоматты азаяды (жарты өмірі ≈ 5 ай). Қорғаныста саны төмен болғаны жақсы.</p>
+  </div></div>`;
+}
+
+
+/* ══════════════════════════════════════════
+   SSTATS дереккөзі (v5.0) — api.sstats.net
+   Кілтсіз де жұмыс істейді (IP-ге 30 сұраныс/мин), кілт лимитті көтереді.
+   ══════════════════════════════════════════ */
+const SSB="https://api.sstats.net";
+const ENDED=[8,9,10,17,18];
+function ssKey(){return ls("sskey","")}
+function SRC(){return ls("src","ss")}
+let ssGate=Promise.resolve();
+function ssThrottle(){ // кілтсіз режимде минутына 30 — 250мс аралық
+  const wait=ssKey()?60:250;
+  const p=ssGate.then(()=>new Promise(r=>setTimeout(r,wait)));
+  ssGate=p;return p;
+}
+async function ssFetch(path){
+  await ssThrottle();
+  const k=ssKey();
+  const url=SSB+path+(path.indexOf("?")>-1?"&":"?")+"TimeZone=5"+(k?"&apikey="+encodeURIComponent(k):"");
+  const r=await fetch(url,{cache:"no-store"});
+  if(r.status===429)throw new Error("Сұраныс лимиті — біраз күте тұр");
+  if(!r.ok)throw new Error("SStats "+r.status);
+  const j=await r.json();
+  return (j&&j.data!==undefined)?j.data:j;
+}
+/* кэшке тек тазартылған дерек жазылады — шикі жауап телефон жадын толтырады */
+async function ssCached(key,ttl,path,distill){
+  const c=cget(key,ttl);
+  if(c!==null&&c!==undefined)return c;
+  const raw=await ssFetch(path);
+  const o=distill?distill(raw):raw;
+  cset(key,o===undefined?null:o);
+  return o;
+}
+function ssOdds(g){
+  const bs=g.odds||[];
+  const m=bs.find(b=>/1x2|winner|full ?time|исход/i.test(String(b.marketName||"")))||bs[0];
+  if(!m||!m.odds)return null;
+  const f=re=>{const x=m.odds.find(o=>re.test(String(o.name||"")));return x?Number(x.value):null};
+  const h=f(/^(1|home|п1)$/i), d=f(/^(x|draw|ничья|н)$/i), a=f(/^(2|away|п2)$/i);
+  if(!h||!a)return null;
+  const ip=v=>v&&v>1.01?1/v:null;
+  return{h:ip(h),d:ip(d),a:ip(a),oh:h||null,od:d||null,oa:a||null};
+}
+function ssState(g){
+  const st=Number(g.status);
+  const done=ENDED.indexOf(st)>-1||(g.homeFTResult!=null&&g.awayFTResult!=null);
+  const live=!done&&Number(g.elapsed)>0;
+  return{state:done?"post":live?"in":"pre",done};
+}
+function ssEvent(g){
+  const d=new Date(g.date||g.dateUtc);
+  const S=ssState(g);
+  const L=(g.season&&g.season.league)||{};
+  return{
+    id:String(g.id), src:"ss",
+    lg:String(L.id||""), lgShort:L.name||"?", lgCountry:(L.country&&(L.country.name||L.country))||"",
+    lgName:(L.name||"?")+((L.country&&(L.country.name||L.country))?" · "+(L.country.name||L.country):""),
+    season:(g.season&&g.season.year)||null,
+    iso:g.date||new Date(g.dateUtc).toISOString(), ymd:ymd(d),
+    hm:(d.getHours()<10?"0":"")+d.getHours()+":"+(d.getMinutes()<10?"0":"")+d.getMinutes(),
+    hId:String((g.homeTeam||{}).id||""), hN:(g.homeTeam||{}).name||"?", hL:(g.homeTeam||{}).logoUrl||"", hS:g.homeResult,
+    aId:String((g.awayTeam||{}).id||""), aN:(g.awayTeam||{}).name||"?", aL:(g.awayTeam||{}).logoUrl||"", aS:g.awayResult,
+    state:S.state, done:S.done, det:g.statusName||"",
+    odds:ssOdds(g)
+  };
+}
+async function ssDay(day){
+  const d=day.slice(0,4)+"-"+day.slice(4,6)+"-"+day.slice(6,8);
+  const live=day===ymd(new Date());
+  return ssCached("ssd2."+day, live?4*60*1000:6*3600*1000,
+    "/Games/list?Date="+d+"&Limit=1000&Order=1",
+    raw=>(raw||[]).map(ssEvent).filter(e=>e.ymd===day));
+}
+/* форма — бір сұраныспен */
+async function ssForm(teamId){
+  return ssCached("ssf."+teamId, 6*3600*1000,
+    "/Games/list?Team="+teamId+"&Ended=true&Limit=24&Order=-1", raw=>{
+  const out=[];
+  (raw||[]).forEach(g=>{
+    const hg=Number(g.homeFTResult!=null?g.homeFTResult:g.homeResult),
+          ag=Number(g.awayFTResult!=null?g.awayFTResult:g.awayResult);
+    if(!isFinite(hg)||!isFinite(ag))return;
+    const home=String((g.homeTeam||{}).id)===String(teamId);
+    const op=home?g.awayTeam:g.homeTeam;
+    out.push({id:String(g.id),d:g.date,gf:home?hg:ag,ga:home?ag:hg,home,
+      opId:String((op||{}).id||""),opN:(op||{}).name||"?"});
+  });
+  return out;
+  });
+}
+/* лиганың бүкіл маусымы — бір сұраныспен */
+async function ssLeagueMatches(lgId,season){
+  if(!lgId)return null;
+  const q="/Games/list?LeagueId="+lgId+"&Ended=true&Limit=1000&Order=-1"+(season?"&Year="+season:"");
+  return ssCached("ssl."+lgId+"."+(season||"x"), 24*3600*1000, q, raw=>{
+  const ms=[];
+  (raw||[]).forEach(g=>{
+    const hg=Number(g.homeFTResult!=null?g.homeFTResult:g.homeResult),
+          ag=Number(g.awayFTResult!=null?g.awayFTResult:g.awayResult);
+    if(!isFinite(hg)||!isFinite(ag))return;
+    ms.push({d:String(g.date||"").slice(0,10),h:String((g.homeTeam||{}).id),a:String((g.awayTeam||{}).id),hg,ag});
+  });
+  return ms;
+  });
+}
+/* толық ойын деректері */
+const STK=["shotsOnGoalHome","shotsOnGoalAway","totalShotsHome","totalShotsAway","foulsHome","foulsAway",
+  "cornerKicksHome","cornerKicksAway","ballPossessionHome","ballPossessionAway","yellowCardsHome","yellowCardsAway",
+  "redCardsHome","redCardsAway","expectedGoalsHome","expectedGoalsAway","bigChancesHome","bigChancesAway"];
+async function ssFull(id,done){
+  return ssCached("ssg."+id, done?45*24*3600*1000:15*60*1000, "/Games/"+id, f=>{
+    if(!f)return null;
+    const g=f.game||{};
+    const st={};
+    if(f.statistics)STK.forEach(k=>{const v=Number(f.statistics[k]);if(isFinite(v))st[k]=v});
+    return{
+      hId:String((g.homeTeam||{}).id||""), aId:String((g.awayTeam||{}).id||""),
+      statistics:Object.keys(st).length?st:null,
+      refereeName:f.refereeName||null,
+      venue:f.venue?{name:f.venue.name,city:f.venue.city,capacity:f.venue.capacity}:null,
+      lineups:f.lineups?{homeFormation:f.lineups.homeFormation,awayFormation:f.lineups.awayFormation}:null,
+      lineupPlayers:(f.lineupPlayers||[]).filter(x=>x.startXI).map(x=>({teamId:String(x.teamId),playerName:x.playerName})),
+      events:(f.events||[]).filter(ev=>/goal|гол/i.test(String(ev.name||"")))
+              .map(ev=>({teamId:String(ev.teamId),name:ev.name,
+                         player:(ev.player&&(ev.player.name||ev.player))||null}))
+    };
+  });
+}
+async function ssGlicko(id){
+  try{return await ssCached("ssgl."+id,3*3600*1000,"/Games/glicko/"+id,
+    r=>r&&r.glicko?{glicko:r.glicko}:null)}catch(e){return null}
+}
+async function ssInjuries(id){
+  try{return await ssCached("ssi."+id,3*3600*1000,"/Games/injuries?gameId="+id,
+    r=>(r||[]).map(x=>({teamId:String(x.teamId),reason:x.reason||"",
+      player:{name:(x.player&&x.player.name)||"?"}})))}catch(e){return null}
+}
+/* соңғы ойындардың протоколынан агрегат */
+function ssStatSide(st,home){
+  if(!st)return null;
+  const g=(a,b)=>{const v=Number(home?st[a]:st[b]);return isFinite(v)?v:0};
+  return{
+    corners:g("cornerKicksHome","cornerKicksAway"),
+    cornersA:g("cornerKicksAway","cornerKicksHome"),
+    yellow:g("yellowCardsHome","yellowCardsAway"),
+    red:g("redCardsHome","redCardsAway"),
+    shots:g("totalShotsHome","totalShotsAway"),
+    sot:g("shotsOnGoalHome","shotsOnGoalAway"),
+    poss:g("ballPossessionHome","ballPossessionAway"),
+    fouls:g("foulsHome","foulsAway"),
+    xg:g("expectedGoalsHome","expectedGoalsAway"),
+    xga:g("expectedGoalsAway","expectedGoalsHome"),
+    big:g("bigChancesHome","bigChancesAway")
+  };
+}
+function ssAgg(rows){
+  const o={n:0,cf:0,ca:0,y:0,r:0,sh:0,sot:0,pos:0,fl:0,xg:0,xga:0,big:0,sc:{}};
+  rows.forEach(x=>{
+    if(!x||!x.st)return;
+    o.n++;
+    o.cf+=x.st.corners;o.ca+=x.st.cornersA;o.y+=x.st.yellow;o.r+=x.st.red;
+    o.sh+=x.st.shots;o.sot+=x.st.sot;o.pos+=x.st.poss;o.fl+=x.st.fouls;
+    o.xg+=x.st.xg;o.xga+=x.st.xga;o.big+=x.st.big;
+    (x.scorers||[]).forEach(n=>o.sc[n]=(o.sc[n]||0)+1);
+  });
+  if(!o.n)return null;
+  ["cf","ca","y","r","sh","sot","pos","fl","xg","xga","big"].forEach(k=>o[k]=o[k]/o.n);
+  return o;
+}
+async function ssTeamDetail(form,teamId,n,prog){
+  const list=form.slice(0,n||6);
+  let d=0;
+  const rows=await pool(list,3,async m=>{
+    let f=null;
+    try{f=await ssFull(m.id,true)}catch(e){}
+    d++;prog&&prog(d,list.length);
+    if(!f)return null;
+    const home=f.hId===String(teamId);
+    const scorers=[];
+    (f.events||[]).forEach(ev=>{
+      if(ev.teamId!==String(teamId))return;
+      if(ev.player)scorers.push(String(ev.player));
+    });
+    return{st:ssStatSide(f.statistics,home),scorers};
+  });
+  return ssAgg(rows.filter(Boolean));
+}
+function ssExtraHTML(full,gl,inj,e){
+  let h="";
+  const v=(full&&full.venue)||null, ref=full&&full.refereeName;
+  if(v||ref){
+    h+=`<div class="card"><h3>СТАДИОН ЖӘНЕ ТӨРЕШІ</h3><div class="in">
+      ${v&&v.name?`<div class="kv"><span>Стадион</span><b class="sm">${esc(v.name)}</b></div>`:""}
+      ${v&&v.city?`<div class="kv"><span>Қала</span><b class="sm">${esc(v.city)}</b></div>`:""}
+      ${v&&v.capacity?`<div class="kv"><span>Сыйымдылығы</span><b>${esc(v.capacity)}</b></div>`:""}
+      <div class="kv"><span>Төреші</span><b class="sm">${ref?esc(ref):"әлі тағайындалмаған"}</b></div>
+      ${ref&&refStats(ref)?`<p class="xs mut" style="margin:9px 0 0">${refStats(ref).m} ойында орташа ${(refStats(ref).y/refStats(ref).m).toFixed(1)} сары қағаз.</p>`:""}
+    </div></div>`;
+  }
+  if(gl&&gl.glicko){
+    const G=gl.glicko;
+    const wp=(x)=>x==null?null:(Number(x)<=1?Number(x)*100:Number(x));
+    const hw=wp(G.homeWinProbability), aw=wp(G.awayWinProbability);
+    h+=`<div class="card"><h3>GLICKO РЕЙТИНГІ ЖӘНЕ xG</h3><div class="in">
+      <div class="kv"><span>${esc(e.hN)}</span><b>${Math.round(G.homeRating)} <span class="mut xs">±${Math.round(G.homeRd)}</span></b></div>
+      <div class="kv"><span>${esc(e.aN)}</span><b>${Math.round(G.awayRating)} <span class="mut xs">±${Math.round(G.awayRd)}</span></b></div>
+      ${G.homeXg!=null?`<div class="kv"><span>Күтілетін xG</span><b>${Number(G.homeXg).toFixed(2)} / ${Number(G.awayXg).toFixed(2)}</b></div>`:""}
+      ${hw!=null?`<div class="kv"><span>Glicko жеңіс ықтималдығы</span><b>${hw.toFixed(0)}% / ${aw==null?"–":aw.toFixed(0)+"%"}</b></div>`:""}
+      <p class="xs mut" style="margin:9px 0 0">Бұл — тәуелсіз екінші модель. Біздікімен қатты айырылса, ойын шынымен белгісіз.</p>
+    </div></div>`;
+  }
+  const L=(full&&full.lineups)||null, LP=(full&&full.lineupPlayers)||[];
+  if(LP.length){
+    const side=id=>String(id)===String(e.hId)?"h":"a";
+    const xi={h:[],a:[]};
+    LP.forEach(p=>{if(p.startXI)xi[side(p.teamId)].push(p.playerName)});
+    if(xi.h.length||xi.a.length){
+      h+=`<div class="card"><h3>ЖАРИЯЛАНҒАН ҚҰРАМ</h3><div class="in">
+        <div style="margin-bottom:9px"><div class="sm" style="font-weight:600">${esc(e.hN)} <span class="mut xs">${esc((L&&L.homeFormation)||"")}</span></div>
+          <div class="xs mut" style="margin-top:4px">${xi.h.map(esc).join(" · ")||"—"}</div></div>
+        <div><div class="sm" style="font-weight:600">${esc(e.aN)} <span class="mut xs">${esc((L&&L.awayFormation)||"")}</span></div>
+          <div class="xs mut" style="margin-top:4px">${xi.a.map(esc).join(" · ")||"—"}</div></div>
+      </div></div>`;
+    }
+  }
+  if(inj&&inj.length){
+    const by={h:[],a:[]};
+    inj.forEach(i=>{(String(i.teamId)===String(e.hId)?by.h:by.a).push(i)});
+    h+=`<div class="card"><h3>ОЙНАМАЙТЫН ОЙЫНШЫЛАР</h3><div class="in">`;
+    [["h",e.hN],["a",e.aN]].forEach(([k,nm])=>{
+      h+=`<div style="margin-bottom:9px"><div class="sm" style="font-weight:600;margin-bottom:4px">${esc(nm)} — ${by[k].length}</div>`+
+        (by[k].length?by[k].map(i=>`<div class="kv"><span class="sm">${esc((i.player&&i.player.name)||"?")}</span><b class="sm">${esc(i.reason||"")}</b></div>`).join(""):`<div class="xs mut">жоқ</div>`)+`</div>`;
+    });
+    h+=`</div></div>`;
+  }
+  return h;
+}
+
+/* ── командаға бөлінген бұрыштама мен қағаз болжамы ── */
+function moreP(l1,l2){ // P(1-ші көп), P(тең), P(2-ші көп)
+  let a=0,e=0,b=0;
+  for(let x=0;x<26;x++)for(let y=0;y<26;y++){
+    const p=Math.exp(-l1)*Math.pow(l1,x)/FACT[x]*Math.exp(-l2)*Math.pow(l2,y)/FACT[y];
+    if(x>y)a+=p;else if(x===y)e+=p;else b+=p;
+  }
+  return[a,e,b];
+}
+function teamSplitHTML(e,HS,AS){
+  const ch=(HS.cf+AS.ca)/2*1.06, ca=(AS.cf+HS.ca)/2*0.96;
+  const yh=HS.y+HS.r, ya=AS.y+AS.r;
+  const [cm,ce,cl]=moreP(ch,ca);
+  const [ym,ye,yl]=moreP(yh,ya);
+  const bar=(a,b,c)=>`<div class="bar3" style="margin:6px 0 4px;height:28px">
+      <div class="b1" style="flex:${Math.max(a,.06)}">${pct(a)}%</div>
+      <div class="bx" style="flex:${Math.max(b,.06)}">${pct(b)}%</div>
+      <div class="b2" style="flex:${Math.max(c,.06)}">${pct(c)}%</div></div>`;
+  return `<div class="card"><h3>ӘР КОМАНДА БОЙЫНША</h3><div class="in">
+    <div class="sm" style="font-weight:600;margin-bottom:2px">Бұрыштама</div>
+    <div class="kv"><span>${esc(e.hN)}</span><b>${ch.toFixed(1)} <span class="mut xs">4.5+ ${pct(overP(ch,4.5))}%</span></b></div>
+    <div class="kv"><span>${esc(e.aN)}</span><b>${ca.toFixed(1)} <span class="mut xs">4.5+ ${pct(overP(ca,4.5))}%</span></b></div>
+    ${bar(cm,ce,cl)}
+    <div class="leg" style="padding:0"><span>${esc(e.hN)} көп</span><span>тең</span><span>${esc(e.aN)} көп</span></div>
+
+    <div class="sm" style="font-weight:600;margin:14px 0 2px">Сары және қызыл қағаз</div>
+    <div class="kv"><span>${esc(e.hN)}</span><b>${yh.toFixed(1)} <span class="mut xs">1.5+ ${pct(overP(yh,1.5))}% · 2.5+ ${pct(overP(yh,2.5))}%</span></b></div>
+    <div class="kv"><span>${esc(e.aN)}</span><b>${ya.toFixed(1)} <span class="mut xs">1.5+ ${pct(overP(ya,1.5))}% · 2.5+ ${pct(overP(ya,2.5))}%</span></b></div>
+    ${bar(ym,ye,yl)}
+    <div class="leg" style="padding:0"><span>${esc(e.hN)} көп</span><span>тең</span><span>${esc(e.aN)} көп</span></div>
+    <div class="kv" style="margin-top:10px"><span>Қызыл қағаз шығуы</span><b>${pct(1-Math.exp(-(HS.r+AS.r)))}%</b></div>
+  </div></div>`;
+}
+
+function ssDeepHTML(e,m,HS,AS){
+  if(!HS||!AS)return "";
+  let h="";
+  const cTot=(HS.cf+AS.ca)/2*1.06+(AS.cf+HS.ca)/2*0.96;
+  const cardL=HS.y+AS.y+HS.r+AS.r;
+  h+=`<div class="card"><h3>БҰРЫШТАМА</h3><div class="in">
+    <div class="grid2" style="margin-bottom:11px">
+      <div class="cell"><div class="l">Күтілетін жиын</div><div class="v">${cTot.toFixed(1)}</div></div>
+      <div class="cell"><div class="l">Ойын сайын (үй/қонақ)</div><div class="v">${HS.cf.toFixed(1)}/${AS.cf.toFixed(1)}</div></div>
+    </div>
+    ${[8.5,9.5,10.5,11.5].map(l=>`<div class="kv"><span>${l}-тен көп</span><b>${pct(overP(cTot,l))}% · ${(1/Math.max(.02,overP(cTot,l))).toFixed(2)}</b></div>`).join("")}
+  </div></div>`;
+  h+=`<div class="card"><h3>САРЫ ЖӘНЕ ҚЫЗЫЛ ҚАҒАЗ</h3><div class="in">
+    <div class="grid2" style="margin-bottom:11px">
+      <div class="cell"><div class="l">Күтілетін қағаз</div><div class="v">${cardL.toFixed(1)}</div></div>
+      <div class="cell"><div class="l">Қызыл ықтималдығы</div><div class="v">${pct(1-Math.exp(-(HS.r+AS.r)))}%</div></div>
+    </div>
+    ${[2.5,3.5,4.5,5.5].map(l=>`<div class="kv"><span>${l}-тен көп</span><b>${pct(overP(cardL,l))}%</b></div>`).join("")}
+    <div class="kv"><span>Бұзу (үй / қонақ)</span><b>${HS.fl.toFixed(1)} / ${AS.fl.toFixed(1)}</b></div>
+  </div></div>`;
+  h+=teamSplitHTML(e,HS,AS);
+  h+=`<div class="card"><h3>xG ЖӘНЕ СОҚҚЫ</h3><div class="in">
+    <div class="kv"><span>xG жасаған (үй / қонақ)</span><b>${HS.xg.toFixed(2)} / ${AS.xg.toFixed(2)}</b></div>
+    <div class="kv"><span>xG жіберген</span><b>${HS.xga.toFixed(2)} / ${AS.xga.toFixed(2)}</b></div>
+    <div class="kv"><span>Айқын сәт</span><b>${HS.big.toFixed(1)} / ${AS.big.toFixed(1)}</b></div>
+    <div class="kv"><span>Соққы / қақпаға дәл</span><b>${HS.sh.toFixed(1)}·${HS.sot.toFixed(1)} / ${AS.sh.toFixed(1)}·${AS.sot.toFixed(1)}</b></div>
+    <div class="kv"><span>Доп иелену</span><b>${HS.pos.toFixed(0)}% / ${AS.pos.toFixed(0)}%</b></div>
+    <div class="kv"><span>Талданған ойын</span><b>${HS.n} / ${AS.n}</b></div>
+    <p class="xs mut" style="margin:9px 0 0">xG — гол болу ықтималдығы бойынша өлшенген соққы сапасы. Голдан гөрі тұрақтырақ көрсеткіш: команда xG-ден көп гол салып жүрсе, ол әдетте ұзаққа бармайды.</p>
+  </div></div>`;
+  const pl=(SC,lam,nm)=>{
+    const tot=Object.values(SC.sc).reduce((a,b)=>a+b,0);
+    const arr=Object.entries(SC.sc).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    if(!arr.length)return `<p class="sm mut">${esc(nm)}: гол авторы табылмады.</p>`;
+    return `<div style="margin-bottom:10px"><div class="sm" style="font-weight:600;margin-bottom:5px">${esc(nm)}</div>`+
+      arr.map(([n,c])=>`<div class="kv"><span class="sm">${esc(n)} <span class="mut xs">${c} гол</span></span><b>${pct(1-Math.exp(-(c/Math.max(1,tot))*lam))}%</b></div>`).join("")+`</div>`;
+  };
+  const L=m.lh+m.la, p0=Math.exp(-L);
+  h+=`<div class="card"><h3>КІМ БІРІНШІ ГОЛ САЛАДЫ</h3><div class="in">
+    <div class="bar3" style="margin:0 0 8px">
+      <div class="b1" style="flex:${Math.max((m.lh/L)*(1-p0),.06)}">${pct((m.lh/L)*(1-p0))}%</div>
+      <div class="bx" style="flex:${Math.max(p0,.06)}">${pct(p0)}%</div>
+      <div class="b2" style="flex:${Math.max((m.la/L)*(1-p0),.06)}">${pct((m.la/L)*(1-p0))}%</div></div>
+    <div class="leg" style="padding:0"><span>${esc(e.hN)}</span><span>гол болмайды</span><span>${esc(e.aN)}</span></div>
+  </div></div>`;
+  h+=`<div class="card"><h3>ГОЛ СОҒУ ЫҚТИМАЛДЫҒЫ</h3><div class="in">${pl(HS,m.lh,e.hN)}${pl(AS,m.la,e.aN)}</div></div>`;
+  return h;
+}
+
+
+/* ── лига каталогы, басымдық реті, сүзгілер ── */
+let SSLG=null;
+const CPRI={"England":1,"Spain":2,"Italy":3,"Germany":4,"France":5,"Europe":6,"World":7,
+  "Netherlands":8,"Portugal":9,"Turkey":10,"Belgium":11,"Saudi-Arabia":12,"Saudi Arabia":12,
+  "USA":13,"Brazil":14,"Argentina":15,"Kazakhstan":16,"Russia":17,"Ukraine":18,
+  "Scotland":19,"Greece":20,"Austria":21,"Switzerland":22,"Denmark":23,"Norway":24,"Sweden":25,
+  "Mexico":26,"Japan":27,"South-Korea":28,"South Korea":28,"China":29,"United-Arab-Emirates":30,"Qatar":31};
+function lgRank(name,country){
+  const c=CPRI[country]!=null?CPRI[country]:70;
+  const n=String(name||"");
+  let t=5;
+  if(/champions league/i.test(n))t=0;
+  else if(/premier league|laliga|la liga|serie a\b|bundesliga\b|ligue 1|eredivisie|primeira|s(ü|u)per lig|pro league|premier-liga|premier liga/i.test(n))t=1;
+  else if(/europa|conference league|libertadores|sudamericana/i.test(n))t=2;
+  else if(/cup|copa|кубок|pokal|coupe|coppa|taca|taça/i.test(n))t=4;
+  else if(/\b(2|ii|b|second)\b|championship|division 2|liga 2|serie b/i.test(n))t=6;
+  return c*10+t;
+}
+async function ssLeaguesAll(){
+  if(SSLG)return SSLG;
+  SSLG=await ssCached("sslgs",30*24*3600*1000,"/Leagues",raw=>{
+    const out=[],seen={};
+    (raw||[]).forEach(L=>{
+      const g=L.league||L;
+      const id=String(g.id||"");
+      if(!id||seen[id])return;seen[id]=1;
+      out.push({id,n:g.name||"?",c:(g.country&&(g.country.name||g.country))||""});
+    });
+    out.sort((a,b)=>lgRank(a.n,a.c)-lgRank(b.n,b.c)||(a.c<b.c?-1:1)||(a.n<b.n?-1:1));
+    return out;
+  });
+  return SSLG;
+}
+function ssFavSet(){return ls("ssfav",[])}
+function ssStat(){return ls("ssstat","up")}
+function setSsStat(v){save("ssstat",v);renderChips();loadGames()}
+
+/* ══════════════ ОЙЫНДАР БЕТІ ══════════════ */
+function renderDays(){
+  const box=document.getElementById("days");let h="";
+  for(let i=-3;i<=7;i++){
+    const d=addDays(ymd(new Date()),i), dd=fromYmd(d);
+    const lb=i===0?"бүгін":i===1?"ертең":i===-1?"кеше":WD[dd.getDay()];
+    h+=`<button class="day${d===S.day?" on":""}" onclick="setDay('${d}')"><b>${dd.getDate()}</b><span>${lb}</span></button>`;
+  }
+  box.innerHTML=h;
+  const on=box.querySelector(".day.on");if(on)on.scrollIntoView({inline:"center",block:"nearest"});
+  document.getElementById("mastdate").innerHTML=fmtDate(S.day)+"<br>"+S.leagues.length+" лига";
+}
+function renderChips(){
+  if(SRC()==="ss"){
+    const fav=ssFavSet(), on=ls("ssonly",1)&&fav.length>0, st=ssStat();
+    const seg=(v,t)=>`<button class="chip${st===v?" on":""}" onclick="setSsStat('${v}')">${t}</button>`;
+    document.getElementById("lgchips").innerHTML=
+      seg("up","Болатын")+seg("fin","Аяқталған")+seg("all","Бәрі")+
+      `<button class="chip${on?" on":""}" onclick="ssOnly()">${on?"★ таңдаулы ("+fav.length+")":"☆ барлық лига"}</button>`;
+    return;
+  }
+  document.getElementById("lgchips").innerHTML=S.leagues.map(l=>
+    `<button class="chip on" onclick="toggleLeague('${l}');loadGames()">${esc(LGNAME[l]||l)}</button>`).join("")
+    ||`<span class="xs mut">Лига таңдалмаған</span>`;
+}
+function setDay(d){S.day=d;renderDays();loadGames()}
+
+let loadTok=0;
+async function loadGames(){
+  const box=document.getElementById("glist"),tok=++loadTok;
+  box.innerHTML=`<div class="sk"></div><div class="sk"></div><div class="sk"></div>`;
+  if(SRC()==="ss"){
+    let evs=[];
+    try{evs=await ssDay(S.day)}
+    catch(err){
+      if(tok!==loadTok)return;
+      box.innerHTML=`<div class="empty"><b>SStats жауап бермеді</b>${esc(err.message)}<br><br>Баптаудан ESPN дереккөзіне ауысуға болады.</div>`;return;
+    }
+    if(tok!==loadTok)return;
+    const fav=ssFavSet(), onlyFav=ls("ssonly",1)&&fav.length>0, st=ssStat();
+    const all=evs.length;
+    let list=evs;
+    if(onlyFav)list=list.filter(e=>fav.indexOf(e.lg)>-1);
+    if(st==="up")list=list.filter(e=>e.state!=="post");
+    else if(st==="fin")list=list.filter(e=>e.state==="post");
+    const groups={};
+    list.forEach(e=>{(groups[e.lgName]=groups[e.lgName]||{id:e.lg,c:e.lgCountry||"",n:e.lgShort||e.lgName,list:[]}).list.push(e)});
+    const names=Object.keys(groups).sort((x,y)=>{
+      const gx=groups[x],gy=groups[y];
+      const fx=fav.indexOf(gx.id)>-1, fy=fav.indexOf(gy.id)>-1;
+      if(fx!==fy)return fx?-1:1;
+      return lgRank(gx.n,gx.c)-lgRank(gy.n,gy.c)||(x<y?-1:1);
+    });
+    let h="",total=0;
+    names.forEach(n=>{
+      const G=groups[n], on=fav.indexOf(G.id)>-1;
+      total+=G.list.length;
+      h+=`<div class="sec"><div class="sec-h">
+        <button onclick="ssFav('${G.id}')" style="font-size:15px;line-height:1;color:${on?"var(--stamp)":"var(--rule)"};padding:0 4px 0 0">${on?"★":"☆"}</button>
+        <span class="t">${esc(n.toUpperCase())}</span><span class="ln"></span><span class="c">${G.list.length}</span></div>`;
+      G.list.forEach(e=>{h+=row(e)});
+      h+=`</div>`;
+    });
+    box.innerHTML=total?h:`<div class="empty"><b>${onlyFav?"Таңдаулы лигада ойын жоқ":st==="fin"?"Аяқталған ойын жоқ":"Болатын ойын жоқ"}</b>${onlyFav?"«Барлығы» түймесін бас немесе басқа лига таңда.":"Басқа күнді таңда."}</div>`;
+    document.getElementById("mastsub").textContent=total+" ойын"+(onlyFav?" · таңдаулы":" · барлығы "+all);
+    document.getElementById("mastdate").innerHTML=fmtDate(S.day)+"<br>"+(st==="fin"?"аяқталған":"болатын");
+    return;
+  }
+  /* ── ESPN режимі ── */
+  if(!S.leagues.length){box.innerHTML=`<div class="empty"><b>Лига таңдалмаған</b>«Лигалар» түймесін басып, қалағаныңды белгіле.</div>`;return}
+  const days=await pool(S.leagues,6,l=>getDay(l,S.day));
+  if(tok!==loadTok)return;
+  let h="",total=0;
+  S.leagues.forEach((l,i)=>{
+    const evs=days[i];
+    if(!evs||!evs.length)return;
+    total+=evs.length;
+    h+=`<div class="sec"><div class="sec-h"><span class="t">${esc((LGNAME[l]||l).toUpperCase())}</span><span class="ln"></span><span class="c">${evs.length}</span></div>`;
+    evs.forEach(e=>{h+=row(e)});
+    h+=`</div>`;
+  });
+  box.innerHTML=total?h:`<div class="empty"><b>Бұл күні ойын жоқ</b>Басқа күнді таңда немесе лига қос.</div>`;
+  document.getElementById("mastsub").textContent=total?total+" ойын":"футбол болжамы";
+}
+function ssFav(id){
+  const f=ssFavSet(),i=f.indexOf(String(id));
+  if(i<0)f.push(String(id));else f.splice(i,1);
+  save("ssfav",f);renderChips();loadGames();
+  toast(i<0?"Таңдаулыға қосылды":"Таңдаулыдан алынды");
+}
+function ssOnly(){
+  if(!ssFavSet().length){toast("Алдымен «Лигалар» бетінен таңда");return}
+  save("ssonly",ls("ssonly",1)?0:1);renderChips();loadGames();
+}
+
+const REG={};
+function row(e){
+  REG[e.id]=e;
+  const sc=e.state!=="pre"?`<span class="sc">${e.hS==null?"":e.hS}\u2013${e.aS==null?"":e.aS}</span> `:"";
+  const tm=e.state==="in"?`<i>ТІКЕЛЕЙ</i>`:e.state==="post"?`<i style="color:var(--ink2)">аяқ.</i>`:e.hm;
+  return `<button class="mrow" onclick="openPred(REG['${e.id}'])">
+    <span class="tm">${tm}</span>
+    <span class="tt">${sc}${esc(e.hN)} — ${esc(e.aN)}</span>
+    <span class="p3"><s class="wait">болжам \u203a</s></span></button>`;
+}
+
+/* ══════════════ БОЛЖАМ БЕТІ ══════════════ */
+let curEv=null,curM=null,curF=null;
+async function openPred(e){
+  curEv=e;curM=null;
+  openFull("f-pred");
+  document.getElementById("predtitle").textContent=e.hN+" — "+e.aN;
+  const b=document.getElementById("predbody");
+  b.innerHTML=`<div class="load">Соңғы ойындар жүктелуде…</div>`;
+  let hf,af;
+  const SS=e.src==="ss";
+  try{[hf,af]=SS
+    ?await Promise.all([ssForm(e.hId),ssForm(e.aId)])
+    :await Promise.all([getForm(e.lg,e.hId),getForm(e.lg,e.aId)])}
+  catch(err){b.innerHTML=`<div class="empty"><b>Дерек келмеді</b>Интернетті тексер де, қайта кір.</div>`;return}
+  let m=null,F=null;
+  if(ls("leaguefit",1)){
+    try{
+      let ms;
+      if(SS){b.innerHTML=`<div class="load">Лига мұрағаты жүктелуде…</div>`;ms=await ssLeagueMatches(e.lg,e.season)}
+      else ms=await leagueMatches(e.lg,(d,t)=>{b.innerHTML=`<div class="load">Лига мұрағаты жиналуда… ${d}/${t} команда<br><span class="xs">Бір рет қана — кейін тәулік бойы кэштен ашылады</span></div>`});
+      if(ms&&ms.length>=50){
+        F=fitDC(ms);
+        const L=fitLambdas(F,e.hId,e.aId);
+        if(L)m=model(hf,af,{nm:S.nm,hfa:S.hfa,aId:e.aId,force:{lh:L.lh,la:L.la,rho:L.rho,n:F.n}});
+      }
+    }catch(err){}
+  }
+  if(!m){F=null;m=model(hf,af,{nm:S.nm,hfa:S.hfa,aId:e.aId})}
+  curM=m;curF=F;
+  if(!m){b.innerHTML=`<div class="empty"><b>Дерек жеткіліксіз</b>Табылғаны: ${hf.length}+${af.length} аяқталған ойын. Бұл лигада ESPN мұрағаты толық емес.</div>`;return}
+  b.innerHTML=predHTML(e,m)+(F?fitCard(F,e):"");
+  if(ls("autodeep",1))deepAnalyze();
+}
+function predHTML(e,m){
+  const P=[["1",m.p1,"b1"],["X",m.px,"bx"],["2",m.p2,"b2"]];
+  const best=P.slice().sort((a,b)=>b[1]-a[1])[0];
+  const pickTxt=best[0]==="1"?e.hN+" жеңеді":best[0]==="2"?e.aN+" жеңеді":"Тең ойын";
+  const [cf]=conf(m.n);
+  const sc=m.top[0];
+  const dbl=m.p1+m.px>=m.p2+m.px?["1X",m.p1+m.px]:["X2",m.px+m.p2];
+
+  let h=`<div class="vs">
+    <div class="side h">${e.hL?`<img src="${esc(e.hL)}" alt="">`:""}<div class="nm">${esc(e.hN)}</div><div class="rl">ҮЙ</div></div>
+    <div class="mid">${e.state==="pre"?e.hm:esc(e.det)}<br><span class="xs">${fmtDate(e.ymd)}</span></div>
+    <div class="side a">${e.aL?`<img src="${esc(e.aL)}" alt="">`:""}<div class="nm">${esc(e.aN)}</div><div class="rl">ҚОНАҚ</div></div>
+  </div>
+
+  <div class="bar3">${P.map(p=>`<div class="${p[2]}" style="flex:${Math.max(p[1],.06)}">${pct(p[1])}%</div>`).join("")}</div>
+  <div class="leg"><span>1 · үй жеңісі</span><span>X · тең</span><span>2 · қонақ жеңісі</span></div>
+
+  <div class="stamp">
+    <div class="lb">МОДЕЛЬ ТАҢДАУЫ</div>
+    <div class="vl">${esc(pickTxt)} · ${pct(best[1])}%</div>
+    <div class="nt">Әділ коэффициент ${(1/best[1]).toFixed(2)} · ${m.src==="league"?"лига моделі, "+m.n+" ойын":"жылдам модель, "+m.n+" ойын · сенімділік "+cf}</div>
+  </div>`;
+
+  h+=`<div class="card"><h3>ЫҚТИМАЛ ЕСЕП</h3><div class="in">
+    <div class="grid2" style="margin-bottom:12px">
+      <div class="cell"><div class="l">Ең ықтимал есеп</div><div class="v">${sc.x}:${sc.y}</div></div>
+      <div class="cell"><div class="l">Күтілетін гол</div><div class="v">${(m.lh+m.la).toFixed(2)}</div></div>
+    </div>
+    <div class="scores">${m.top.map(t=>`<div class="scr"><span class="num">${t.x}:${t.y}</span><span class="bx"><i style="width:${Math.min(100,t.p/m.top[0].p*100)}%"></i></span><b>${(t.p*100).toFixed(1)}%</b></div>`).join("")}</div>
+  </div></div>`;
+
+  h+=`<div class="card"><h3>ҚОСЫМША НАРЫҚТАР</h3><div class="in">
+    <div class="kv"><span>Қос мүмкіндік ${dbl[0]}</span><b>${pct(dbl[1])}% · ${(1/dbl[1]).toFixed(2)}</b></div>
+    <div class="kv"><span>2.5-тен көп гол</span><b>${pct(m.o25)}% · ${(1/m.o25).toFixed(2)}</b></div>
+    <div class="kv"><span>2.5-тен аз гол</span><b>${pct(m.u25)}% · ${(1/m.u25).toFixed(2)}</b></div>
+    <div class="kv"><span>Екі команда да гол салады</span><b>${pct(m.btts)}% · ${(1/m.btts).toFixed(2)}</b></div>
+    <div class="kv"><span>Күтілетін гол (үй / қонақ)</span><b>${m.lh.toFixed(2)} / ${m.la.toFixed(2)}</b></div>
+  </div></div>`;
+
+  if(e.odds&&e.odds.h!=null&&e.odds.a!=null){
+    const s=e.odds.h+(e.odds.d||0)+e.odds.a;
+    const mk={h:e.odds.h/s,d:(e.odds.d||0)/s,a:e.odds.a/s};
+    const dif=(a,b)=>{const d=(a-b)*100;return `<b style="color:${d>3?"var(--pitch)":d<-3?"var(--stamp)":"var(--ink2)"}">${d>0?"+":""}${d.toFixed(0)} п.т.</b>`};
+    h+=`<div class="card"><h3>МОДЕЛЬ vs НАРЫҚ</h3><div class="in">
+      <div class="kv"><span>1 — модель ${pct(m.p1)}% / нарық ${pct(mk.h)}%</span>${dif(m.p1,mk.h)}</div>
+      ${e.odds.d!=null?`<div class="kv"><span>X — модель ${pct(m.px)}% / нарық ${pct(mk.d)}%</span>${dif(m.px,mk.d)}</div>`:""}
+      <div class="kv"><span>2 — модель ${pct(m.p2)}% / нарық ${pct(mk.a)}%</span>${dif(m.p2,mk.a)}</div>
+      <p class="xs mut" style="margin:9px 0 0">Жасыл — модель нарықтан жоғары баға беріп тұр. Бұл «ұтасың» дегенді білдірмейді, тек айырманы көрсетеді.</p>
+    </div></div>`;
+  }
+
+  h+=`<div class="card"><h3>ФОРМА · СОҢҒЫ ОЙЫНДАР</h3><div class="in">
+    <div style="margin-bottom:10px"><div class="sm" style="font-weight:600;margin-bottom:5px">${esc(e.hN)}</div>
+      <div class="form">${m.formH.map(x=>`<s class="${res(x)}">${res(x)==="W"?"Ж":res(x)==="D"?"Т":"Ұ"}</s>`).join("")}</div>
+      <div class="xs mut" style="margin-top:5px">${m.formH.map(x=>`${esc(x.opN)} ${x.gf}:${x.ga}`).join(" · ")}</div></div>
+    <div><div class="sm" style="font-weight:600;margin-bottom:5px">${esc(e.aN)}</div>
+      <div class="form">${m.formA.map(x=>`<s class="${res(x)}">${res(x)==="W"?"Ж":res(x)==="D"?"Т":"Ұ"}</s>`).join("")}</div>
+      <div class="xs mut" style="margin-top:5px">${m.formA.map(x=>`${esc(x.opN)} ${x.gf}:${x.ga}`).join(" · ")}</div></div>
+  </div></div>`;
+
+  if(m.h2h.length){
+    h+=`<div class="card"><h3>ӨЗАРА КЕЗДЕСУ</h3><div class="in">
+      ${m.h2h.map(x=>`<div class="kv"><span class="sm">${new Date(x.d).toLocaleDateString("kk-KZ")} · ${x.home?"үйде":"қонақта"}</span><b>${x.gf}:${x.ga}</b></div>`).join("")}
+    </div></div>`;
+  }
+
+  h+=`<div id="deepbox" style="margin:14px 16px">
+    <button class="btn-ol" style="width:100%" onclick="deepAnalyze()">Терең талдау жүктеу</button>
+    <p class="xs mut" style="margin:8px 2px 0">Екі команданың соңғы 8 ойынының толық статистикасы, жарақат тізімі, төреші, стадион ауа райы жүктеледі. 20-ға жуық сұраныс — 10–20 секунд алады.</p>
+  </div>`;
+
+  h+=`<div style="margin:14px 16px 6px">
+    <button class="btn-stamp" onclick="savePred()">Болжамды сақтау</button>
+    <p class="xs mut" style="margin:9px 2px 0">Сақталған болжам «Болжамдарым» бетінде нәтижемен салыстырылып, нақты дәлдігің есептеледі.</p>
+  </div>`;
+  return h;
+}
+
+function savePred(){
+  if(!curEv||!curM)return;
+  if(S.saved.some(x=>x.id===curEv.id)){toast("Бұл ойын сақталған");return}
+  const P=[["1",curM.p1],["X",curM.px],["2",curM.p2]].sort((a,b)=>b[1]-a[1])[0];
+  S.saved.unshift({id:curEv.id,lg:curEv.lg,src:curEv.src||"espn",lgName:curEv.lgName||"",ymd:curEv.ymd,hN:curEv.hN,aN:curEv.aN,
+    p1:curM.p1,px:curM.px,p2:curM.p2,pick:P[0],pp:P[1],
+    sc:curM.top[0].x+":"+curM.top[0].y,ts:Date.now(),act:null,ok:null});
+  S.saved=S.saved.slice(0,200);save("saved",S.saved);
+  toast("Сақталды");
+}
+
+
+/* ══════════════════════════════════════════
+   ТЕРЕҢ ТАЛДАУ (v2.0)
+   ══════════════════════════════════════════ */
+const OM="https://api.open-meteo.com/v1/forecast";
+const GEO="https://geocoding-api.open-meteo.com/v1/search";
+
+function statMap(t){
+  const m={};
+  ((t&&t.statistics)||[]).forEach(x=>{
+    const k=String(x.name||x.abbreviation||"").toLowerCase();
+    const v=parseFloat(String(x.displayValue!=null?x.displayValue:x.value).replace("%",""));
+    if(k&&isFinite(v))m[k]=v;
+  });
+  return m;
+}
+function pickStat(m,keys){for(const k of keys){if(m[k]!=null)return m[k]}return null}
+
+function distSummary(r){
+  const hd=(r.header&&r.header.competitions&&r.header.competitions[0])||{};
+  const cs=hd.competitors||[];
+  const hid=String(((cs.find(c=>c.homeAway==="home")||{}).id)||"");
+  const aid=String(((cs.find(c=>c.homeAway==="away")||{}).id)||"");
+  const bs=(r.boxscore&&r.boxscore.teams)||[];
+  let H=null,A=null;
+  bs.forEach((t,i)=>{
+    const m=statMap(t), id=String((t.team&&t.team.id)||"");
+    if(hid&&id===hid)H=m; else if(aid&&id===aid)A=m; else if(i===0&&!H)H=m; else if(!A)A=m;
+  });
+  const side=id=>String(id)===hid?"h":String(id)===aid?"a":null;
+
+  const goals=[];
+  const src=[].concat(r.scoringPlays||[],r.keyEvents||[]);
+  const seen={};
+  src.forEach(p=>{
+    const txt=String((p.type&&(p.type.text||p.type.abbreviation))||(p.scoringType&&p.scoringType.displayName)||p.text||"").toLowerCase();
+    if(txt&&txt.indexOf("goal")<0&&txt.indexOf("penalty")<0)return;
+    if(txt.indexOf("own")>-1)return;
+    const ath=(p.athletesInvolved&&p.athletesInvolved[0])||((p.participants&&p.participants[0]||{}).athlete);
+    const nm=ath&&(ath.displayName||ath.shortName);
+    const sd=side((p.team&&p.team.id));
+    const cl=(p.clock&&p.clock.displayValue)||"";
+    const key=sd+"|"+nm+"|"+cl;
+    if(!nm||!sd||seen[key])return;
+    seen[key]=1;
+    goals.push({s:sd,n:nm,m:parseInt(cl,10)||null});
+  });
+
+  const gi=r.gameInfo||{};
+  let ref=null;
+  ((gi.officials)||[]).forEach(o=>{
+    const pos=String((o.position&&(o.position.displayName||o.position.name))||o.order||"").toLowerCase();
+    if(!ref&&(pos.indexOf("referee")>-1||pos===""||pos==="1"))ref=o.displayName||o.fullName||null;
+  });
+  const vn=gi.venue||{};
+  return{
+    H:H||{},A:A||{},goals,ref,
+    venue:vn.fullName||null,
+    city:(vn.address&&(vn.address.city||vn.address.summary))||null,
+    country:(vn.address&&vn.address.country)||null,
+    done:!!(hd.status&&hd.status.type&&hd.status.type.completed)
+  };
+}
+async function getSummary(lg,id,done){
+  const key="sm."+lg+"."+id;
+  const c=cget(key,done?45*24*3600*1000:15*60*1000);
+  if(c)return c;
+  const o=distSummary(await jget(SITE+lg+"/summary?event="+id));
+  cset(key,o);
+  if(done&&o.ref)refLearn(o);
+  return o;
+}
+/* төреші тарихы — қаралған ойындардан жинала береді */
+function refLearn(o){
+  const y=(pickStat(o.H,["yellowcards"])||0)+(pickStat(o.A,["yellowcards"])||0);
+  const red=(pickStat(o.H,["redcards"])||0)+(pickStat(o.A,["redcards"])||0);
+  const f=(pickStat(o.H,["foulscommitted"])||0)+(pickStat(o.A,["foulscommitted"])||0);
+  if(!y&&!f)return;
+  const db=ls("refs",{});
+  const r=db[o.ref]||{m:0,y:0,r:0,f:0};
+  r.m++;r.y+=y;r.r+=red;r.f+=f;
+  db[o.ref]=r;save("refs",db);
+}
+function refStats(name){const r=ls("refs",{})[name];return r&&r.m>=3?r:null}
+
+async function getInjuries(lg,teamId){
+  const key="inj."+lg+"."+teamId;
+  const c=cget(key,12*3600*1000);
+  if(c)return c;
+  let out=[];
+  try{
+    const r=await jget(SITE+lg+"/teams/"+teamId+"/injuries");
+    const arr=r.injuries||r.items||[];
+    arr.forEach(g=>{
+      const list=g.injuries||[g];
+      list.forEach(x=>{
+        const a=x.athlete||g.athlete||{};
+        const nm=a.displayName||a.fullName;
+        if(!nm)return;
+        out.push({n:nm,
+          p:(a.position&&(a.position.abbreviation||a.position.displayName))||"",
+          st:x.status||(x.type&&x.type.description)||"",
+          d:(x.details&&(x.details.type||x.details.detail))||""});
+      });
+    });
+  }catch(e){}
+  out=out.slice(0,12);
+  cset(key,out);
+  return out;
+}
+
+async function getWeather(city,country,iso){
+  if(!city)return null;
+  const key="w."+city+"."+iso.slice(0,13);
+  const c=cget(key,3*3600*1000);
+  if(c)return c;
+  try{
+    const g=await jget(GEO+"?name="+encodeURIComponent(city)+"&count=1&language=en&format=json");
+    const p=(g.results&&g.results[0]);
+    if(!p)return null;
+    const d=iso.slice(0,10);
+    const w=await jget(OM+"?latitude="+p.latitude+"&longitude="+p.longitude+
+      "&hourly=temperature_2m,precipitation,wind_speed_10m,relative_humidity_2m&start_date="+d+"&end_date="+d+"&timezone=UTC");
+    const hh=(w.hourly&&w.hourly.time)||[];
+    if(!hh.length)return null;
+    const target=iso.slice(0,13);
+    let i=hh.findIndex(t=>t.slice(0,13)===target);
+    if(i<0)i=Math.min(15,hh.length-1);
+    const o={t:w.hourly.temperature_2m[i],p:w.hourly.precipitation[i],
+             w:w.hourly.wind_speed_10m[i],h:w.hourly.relative_humidity_2m[i],city:p.name};
+    cset(key,o);
+    return o;
+  }catch(e){return null}
+}
+
+/* агрегация */
+function agg(list){
+  const o={n:0,cf:0,ca:0,y:0,r:0,sh:0,sot:0,pos:0,fl:0,sc:{}};
+  list.forEach(x=>{
+    if(!x||!x.me||!x.op)return;
+    const M=x.me,O=x.op;
+    o.n++;
+    o.cf+=pickStat(M,["woncorners","corners"])||0;
+    o.ca+=pickStat(O,["woncorners","corners"])||0;
+    o.y+=pickStat(M,["yellowcards"])||0;
+    o.r+=pickStat(M,["redcards"])||0;
+    o.sh+=pickStat(M,["totalshots","shots"])||0;
+    o.sot+=pickStat(M,["shotsontarget","ontargetshots"])||0;
+    o.pos+=pickStat(M,["possessionpct"])||0;
+    o.fl+=pickStat(M,["foulscommitted"])||0;
+    (x.goals||[]).forEach(gl=>{if(gl.side==="me")o.sc[gl.n]=(o.sc[gl.n]||0)+1});
+  });
+  if(!o.n)return null;
+  ["cf","ca","y","r","sh","sot","pos","fl"].forEach(k=>o[k]=o[k]/o.n);
+  return o;
+}
+function overP(lam,line){
+  let p=0;const k=Math.floor(line);
+  for(let i=0;i<=k&&i<25;i++)p+=Math.exp(-lam)*Math.pow(lam,i)/(FACT[i]||Infinity);
+  return Math.max(0,Math.min(1,1-p));
+}
+for(let i=FACT.length;i<26;i++)FACT[i]=FACT[i-1]*i;
+
+let deepBusy=false;
+async function deepAnalyze(){
+  if(deepBusy||!curEv||!curM)return;
+  deepBusy=true;
+  const box=document.getElementById("deepbox");
+  const e=curEv;
+  const set=t=>{box.innerHTML='<div class="load">'+t+'</div>'};
+  if(e.src==="ss"){
+    try{
+      set("Ойын деректері жүктелуде…");
+      const [full,gl,inj]=await Promise.all([ssFull(e.id,e.done).catch(()=>null),ssGlicko(e.id),ssInjuries(e.id)]);
+      const [hf,af]=await Promise.all([ssForm(e.hId),ssForm(e.aId)]);
+      set("Соңғы ойындардың протоколы… 0/12");
+      let dn=0;const tick=()=>{dn++;set("Соңғы ойындардың протоколы… "+dn+"/12")};
+      const HS=await ssTeamDetail(hf,e.hId,6,tick);
+      const AS=await ssTeamDetail(af,e.aId,6,tick);
+      const city=(full&&full.venue&&full.venue.city)||null;
+      const wx=city?await getWeather(city,null,e.iso):null;
+      let h=ssExtraHTML(full,gl,inj,e)+ssDeepHTML(e,curM,HS,AS);
+      if(wx){
+        const eff=wx.p>=0.5?"жаңбыр — гол азаяды":wx.w>=25?"қатты жел — ұзын беріліс тиімсіз":"ойынға әсері шамалы";
+        h+=`<div class="card"><h3>АУА РАЙЫ</h3><div class="in">
+          <div class="kv"><span>Температура</span><b>${Math.round(wx.t)}°C</b></div>
+          <div class="kv"><span>Жауын-шашын</span><b>${wx.p.toFixed(1)} мм</b></div>
+          <div class="kv"><span>Жел</span><b>${Math.round(wx.w)} км/сағ</b></div>
+          <p class="xs mut" style="margin:9px 0 0">${eff}</p></div></div>`;
+      }
+      if(HS&&AS){
+        const cTot=(HS.cf+AS.ca)/2*1.06+(AS.cf+HS.ca)/2*0.96, cardL=HS.y+AS.y+HS.r+AS.r;
+        const ref=full&&full.refereeName;
+        const NR=narrative(e,curM,HS,AS,inj?inj.filter(i=>String(i.teamId)===String(e.hId)):[],
+                           inj?inj.filter(i=>String(i.teamId)===String(e.aId)):[],wx,cTot,cardL,ref,ref?refStats(ref):null);
+        h+=`<div class="stamp" style="margin:14px 0"><div class="lb">ТАЛДАУ ҚОРЫТЫНДЫСЫ</div>
+          <div style="margin-top:8px">${NR.map(t=>`<p class="sm" style="margin:0 0 8px">${t}</p>`).join("")}</div></div>`;
+      }
+      box.innerHTML=h||'<div class="empty"><b>Қосымша дерек жоқ</b>Бұл ойынға SStats әзірге статистика бермейді.</div>';
+    }catch(err){
+      box.innerHTML='<div class="empty"><b>Талдау аяқталмады</b>'+esc(err.message)+'</div>'+
+        '<div style="margin:12px 0"><button class="btn-ol" style="width:100%" onclick="deepAnalyze()">Қайта көру</button></div>';
+    }
+    deepBusy=false;return;
+  }
+  set("Ойын тізімі алынуда…");
+  try{
+    const [hf,af]=await Promise.all([getForm(e.lg,e.hId),getForm(e.lg,e.aId)]);
+    const hIds=hf.slice(0,8).filter(x=>x.id), aIds=af.slice(0,8).filter(x=>x.id);
+    const jobs=hIds.map(x=>({side:"h",m:x})).concat(aIds.map(x=>({side:"a",m:x})));
+    let done0=0;
+    const sums=await pool(jobs,4,async j=>{
+      const s=await getSummary(e.lg,j.m.id,true).catch(()=>null);
+      done0++;set("Соңғы ойындар талдануда… "+done0+"/"+jobs.length);
+      if(!s)return null;
+      // қай жақ «біздікі» екенін голдар мен үй/қонақ арқылы шешеміз
+      const meIsHome=j.m.home;
+      return{s:1,me:meIsHome?s.H:s.A,op:meIsHome?s.A:s.H,
+        goals:(s.goals||[]).map(g=>({n:g.n,m:g.m,side:(g.s==="h")===meIsHome?"me":"op"})),
+        side:j.side};
+    });
+    const HS=agg(sums.filter(x=>x&&x.side==="h"));
+    const AS=agg(sums.filter(x=>x&&x.side==="a"));
+
+    set("Жарақат, төреші, ауа райы…");
+    const [inH,inA,mSum]=await Promise.all([
+      getInjuries(e.lg,e.hId),
+      getInjuries(e.lg,e.aId),
+      getSummary(e.lg,e.id,false).catch(()=>null)
+    ]);
+    let afx=null;
+    if(afOn()){
+      set("Төреші, стадион, құрам…");
+      try{const fx=await afMatch(e); if(fx)afx=await afExtras(fx);}catch(err){afx={fx:null,err:err.message}}
+    }
+    const city=(afx&&afx.fx&&afx.fx.vc)||(mSum&&mSum.city);
+    const wx=city?await getWeather(city,null,e.iso):null;
+    box.innerHTML=(afx?afHTML(afx,e):"")+deepHTML(e,curM,HS,AS,inH,inA,mSum,wx);
+  }catch(err){
+    box.innerHTML='<div class="empty"><b>Талдау аяқталмады</b>Интернетті тексер де, қайта бас.</div>'+
+      '<div style="margin:12px 0"><button class="btn-ol" style="width:100%" onclick="deepAnalyze()">Қайта көру</button></div>';
+  }
+  deepBusy=false;
+}
+
+
+function narrative(e,m,HS,AS,inH,inA,wx,cTot,cardL,ref,rs){
+  const P=[["1",m.p1,e.hN],["X",m.px,null],["2",m.p2,e.aN]].sort((a,b)=>b[1]-a[1]);
+  const top=P[0], sec=P[1];
+  const gap=top[1]-sec[1];
+  const fav=top[0]==="X"?null:top[2];
+  const s=[];
+
+  if(fav){
+    const lvl=gap>0.22?"айқын басым":gap>0.10?"сәл басым":"болар-болмас басым";
+    s.push(`Модель ${esc(fav)} жағын ${lvl} деп бағалайды: жеңіс ықтималдығы ${pct(top[1])}%, ал ${top[0]==="1"?"қонақтың":"үй иесінің"} шансы ${pct(top[0]==="1"?m.p2:m.p1)}%.`);
+  }else{
+    s.push(`Күштер тең — модель тең ойынды ${pct(m.px)}% деп бағалап тұр, бұл футбол үшін жоғары көрсеткіш. Жеңімпазға тікпеген жөн.`);
+  }
+
+  const hF=HS?`${HS.sh.toFixed(1)} соққы, ${HS.pos.toFixed(0)}% иелену`:"";
+  const aF=AS?`${AS.sh.toFixed(1)} соққы, ${AS.pos.toFixed(0)}% иелену`:"";
+  if(hF&&aF)s.push(`Соңғы ойындарда ${esc(e.hN)} орта есеппен ${hF}, ${esc(e.aN)} ${aF} көрсеткен. Күтілетін гол — ${m.lh.toFixed(2)} : ${m.la.toFixed(2)}.`);
+
+  const tg=m.lh+m.la;
+  s.push(tg>2.9
+    ? `Екі жақтың да қорғанысы берік емес: жиыны ${tg.toFixed(2)} гол күтіледі, «2.5-тен көп» ${pct(m.o25)}%, екі команда да гол салуы ${pct(m.btts)}%.`
+    : tg<2.2
+      ? `Гол аз ойын болуы ықтимал: жиыны ${tg.toFixed(2)} гол, «2.5-тен аз» ${pct(m.u25)}%.`
+      : `Гол саны орташа деңгейде — жиыны ${tg.toFixed(2)}, бұл нарық ашық, шеті жоқ.`);
+
+  if(cTot)s.push(`Бұрыштама бойынша жиыны ${cTot.toFixed(1)} күтіледі; 9.5 сызығы ${overP(cTot,9.5)>0.5?"жоғары":"төмен"} жақта — ${pct(Math.max(overP(cTot,9.5),1-overP(cTot,9.5)))}%.`);
+
+  if(cardL){
+    let t=`Қағаз жиыны шамамен ${cardL.toFixed(1)}`;
+    if(rs)t+=`; төреші ${esc(ref)} ${rs.m} ойында орташа ${(rs.y/rs.m).toFixed(1)} сары қағаз көрсеткен`;
+    else if(ref)t+=`; төреші ${esc(ref)}, тарихы әлі жиналуда`;
+    s.push(t+".");
+  }
+
+  const ni=(inH||[]).length,na=(inA||[]).length;
+  if(ni+na>0)s.push(`Жарақат тізімінде ${esc(e.hN)} — ${ni}, ${esc(e.aN)} — ${na} ойыншы. Модель құрамды ескермейді, сондықтан негізгі шабуылшы жоқ болса, сол жақтың пайызын өзің төмендет.`);
+
+  if(wx){
+    if(wx.p>=0.5)s.push(`Ойын кезінде ${wx.p.toFixed(1)} мм жауын күтіледі — доп жылдамдайды, қателік көбейеді, әдетте гол азаяды.`);
+    else if(wx.w>=25)s.push(`Жел ${Math.round(wx.w)} км/сағ — ұзын беріліске сүйенетін команда қиналады.`);
+    else s.push(`Ауа райы қалыпты: ${Math.round(wx.t)}°C, жел ${Math.round(wx.w)} км/сағ — ойынға әсері шамалы.`);
+  }
+
+  s.push(`Ең сенімді тұсы — ${(function(){
+    const c=[[`${top[0]==="X"?"тең ойын":esc(fav)+" жеңісі"}`,top[1]],
+             [m.o25>m.u25?"2.5-тен көп гол":"2.5-тен аз гол",Math.max(m.o25,m.u25)]];
+    if(cTot)c.push([overP(cTot,9.5)>0.5?"бұрыштама 9.5-тен көп":"бұрыштама 9.5-тен аз",Math.max(overP(cTot,9.5),1-overP(cTot,9.5))]);
+    c.sort((a,b)=>b[1]-a[1]);
+    return c[0][0]+" ("+pct(c[0][1])+"%)";
+  })()}. Бұл кепілдік емес — үш ойынның біреуі әрқашан күтпеген жаққа бұрылады.`);
+
+  return s;
+}
+
+function deepHTML(e,m,HS,AS,inH,inA,mSum,wx){
+  let h="";
+  if(!HS||!AS)return '<div class="empty"><b>Статистика жеткіліксіз</b>Бұл лигада ESPN толық көрсеткіш бермейді.</div>';
+
+  /* ── бұрыштама ── */
+  const chL=(HS.cf+AS.ca)/2*1.06, caL=(AS.cf+HS.ca)/2*0.96;
+  const cTot=chL+caL;
+  h+=`<div class="card"><h3>БҰРЫШТАМА</h3><div class="in">
+    <div class="grid2" style="margin-bottom:11px">
+      <div class="cell"><div class="l">Күтілетін жиын</div><div class="v">${cTot.toFixed(1)}</div></div>
+      <div class="cell"><div class="l">${esc(e.hN)} / ${esc(e.aN)}</div><div class="v">${chL.toFixed(1)} / ${caL.toFixed(1)}</div></div>
+    </div>
+    ${[8.5,9.5,10.5,11.5].map(l=>`<div class="kv"><span>${l}-тен көп</span><b>${pct(overP(cTot,l))}% · ${(1/Math.max(.02,overP(cTot,l))).toFixed(2)}</b></div>`).join("")}
+    <p class="xs mut" style="margin:9px 0 0">Соңғы ${HS.n}+${AS.n} ойынның нақты бұрыштамасынан есептелді.</p>
+  </div></div>`;
+
+  /* ── қағаздар ── */
+  const ref=mSum&&mSum.ref, rs=ref?refStats(ref):null;
+  let cardBase=HS.y+AS.y+ (HS.r+AS.r)*1;
+  let refMul=1, refNote="Төреші деректері әлі жиналмаған — лига орташасы алынды.";
+  if(rs){
+    const refAvg=rs.y/rs.m;
+    refMul=Math.max(.75,Math.min(1.35,refAvg/Math.max(.5,cardBase)));
+    refNote=`${esc(ref)} — ${rs.m} ойында орташа ${refAvg.toFixed(1)} сары қағаз.`;
+  }else if(ref){refNote=`Төреші: ${esc(ref)}. Тарихы жиналуда (3 ойыннан кейін есепке алынады).`}
+  const cardL=cardBase*refMul;
+  h+=`<div class="card"><h3>САРЫ ЖӘНЕ ҚЫЗЫЛ ҚАҒАЗ</h3><div class="in">
+    <div class="grid2" style="margin-bottom:11px">
+      <div class="cell"><div class="l">Күтілетін қағаз</div><div class="v">${cardL.toFixed(1)}</div></div>
+      <div class="cell"><div class="l">Қызыл қағаз ықтималдығы</div><div class="v">${pct(1-Math.exp(-(HS.r+AS.r)))}%</div></div>
+    </div>
+    ${[2.5,3.5,4.5,5.5].map(l=>`<div class="kv"><span>${l}-тен көп қағаз</span><b>${pct(overP(cardL,l))}%</b></div>`).join("")}
+    <div class="kv"><span>Ойын сайын бұзу (үй / қонақ)</span><b>${HS.fl.toFixed(1)} / ${AS.fl.toFixed(1)}</b></div>
+    <p class="xs mut" style="margin:9px 0 0">${refNote} Қағаз саны Пуассоннан гөрі шашыраңқы — шеткі мәндер сәл жоғарылау болуы мүмкін.</p>
+  </div></div>`;
+
+  h+=teamSplitHTML(e,HS,AS);
+
+  /* ── бірінші гол ── */
+  const L=m.lh+m.la, p0=Math.exp(-L);
+  const pHf=(m.lh/L)*(1-p0), pAf=(m.la/L)*(1-p0);
+  h+=`<div class="card"><h3>КІМ БІРІНШІ ГОЛ САЛАДЫ</h3><div class="in">
+    <div class="bar3" style="margin:0 0 8px">
+      <div class="b1" style="flex:${Math.max(pHf,.06)}">${pct(pHf)}%</div>
+      <div class="bx" style="flex:${Math.max(p0,.06)}">${pct(p0)}%</div>
+      <div class="b2" style="flex:${Math.max(pAf,.06)}">${pct(pAf)}%</div>
+    </div>
+    <div class="leg" style="padding:0"><span>${esc(e.hN)}</span><span>гол болмайды</span><span>${esc(e.aN)}</span></div>
+  </div></div>`;
+
+  /* ── гол соғу мүмкіндігі ── */
+  const players=(SC,lam,nm)=>{
+    const tot=Object.values(SC.sc).reduce((a,b)=>a+b,0);
+    const arr=Object.entries(SC.sc).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    if(!arr.length)return `<p class="sm mut">${esc(nm)}: соңғы ойындарда гол авторы табылмады.</p>`;
+    return `<div style="margin-bottom:10px"><div class="sm" style="font-weight:600;margin-bottom:5px">${esc(nm)}</div>`+
+      arr.map(([n,c])=>{
+        const share=c/Math.max(1,tot);
+        const any=1-Math.exp(-share*lam);
+        return `<div class="kv"><span class="sm">${esc(n)} <span class="mut xs">${c} гол</span></span><b>${pct(any)}%</b></div>`;
+      }).join("")+`</div>`;
+  };
+  h+=`<div class="card"><h3>ГОЛ СОҒУ ЫҚТИМАЛДЫҒЫ</h3><div class="in">
+    ${players(HS,m.lh,e.hN)}${players(AS,m.la,e.aN)}
+    <p class="xs mut" style="margin:0">Соңғы ойындағы гол үлесі × команданың күтілетін голы. Құрам жарияланғанда өзгереді.</p>
+  </div></div>`;
+
+  /* ── соққы мен иелену ── */
+  h+=`<div class="card"><h3>СОҚҚЫ МЕН ИЕЛЕНУ</h3><div class="in">
+    <div class="kv"><span>Соққы (үй / қонақ)</span><b>${HS.sh.toFixed(1)} / ${AS.sh.toFixed(1)}</b></div>
+    <div class="kv"><span>Қақпаға дәл</span><b>${HS.sot.toFixed(1)} / ${AS.sot.toFixed(1)}</b></div>
+    <div class="kv"><span>Доп иелену, %</span><b>${HS.pos.toFixed(0)} / ${AS.pos.toFixed(0)}</b></div>
+    <div class="kv"><span>Талданған ойын</span><b>${HS.n} / ${AS.n}</b></div>
+  </div></div>`;
+
+  /* ── жарақат ── */
+  const il=(list,nm)=>list&&list.length
+    ? `<div style="margin-bottom:9px"><div class="sm" style="font-weight:600;margin-bottom:4px">${esc(nm)} — ${list.length}</div>`+
+      list.map(x=>`<div class="kv"><span class="sm">${esc(x.n)} <span class="mut xs">${esc(x.p)}</span></span><b class="sm">${esc(x.st||x.d||"—")}</b></div>`).join("")+`</div>`
+    : `<p class="sm mut">${esc(nm)}: жарақат тізімі бос немесе қолжетімсіз.</p>`;
+  h+=`<div class="card"><h3>ЖАРАҚАТ ЖӘНЕ ҚҰРАМ</h3><div class="in">
+    ${il(inH,e.hN)}${il(inA,e.aN)}
+    <p class="xs mut" style="margin:0">Модель құрамды ескермейді. Негізгі шабуылшы жоқ болса, сол команданың ықтималдығын өзің 5–10% төмен бағала.</p>
+  </div></div>`;
+
+  /* ── ауа райы ── */
+  if(wx){
+    const eff=[];
+    if(wx.p>=0.5)eff.push("жаңбыр — доп жылдам, қателік көп, гол азаяды");
+    if(wx.w>=25)eff.push("қатты жел — ұзын беріліс пен бұрыштама тиімсіз");
+    if(wx.t<=0)eff.push("аяз — қарқын төмен, гол азырақ");
+    if(wx.t>=30)eff.push("ыстық — екінші таймда қарқын түседі");
+    h+=`<div class="card"><h3>СТАДИОН ЖӘНЕ АУА РАЙЫ</h3><div class="in">
+      ${mSum&&mSum.venue?`<div class="kv"><span>Стадион</span><b class="sm">${esc(mSum.venue)}</b></div>`:""}
+      <div class="kv"><span>Температура</span><b>${Math.round(wx.t)}°C</b></div>
+      <div class="kv"><span>Жауын-шашын</span><b>${wx.p.toFixed(1)} мм</b></div>
+      <div class="kv"><span>Жел</span><b>${Math.round(wx.w)} км/сағ</b></div>
+      <div class="kv"><span>Ылғалдылық</span><b>${Math.round(wx.h)}%</b></div>
+      <p class="xs mut" style="margin:9px 0 0">${eff.length?esc(eff.join("; ")):"Ауа райы ойынға айтарлықтай әсер етпейді."}</p>
+    </div></div>`;
+  }
+
+  /* ── қорытынды ── */
+  const NR=narrative(e,m,HS,AS,inH,inA,wx,cTot,cardL,ref,rs);
+  h+=`<div class="stamp" style="margin:14px 0"><div class="lb">ТАЛДАУ ҚОРЫТЫНДЫСЫ</div>
+    <div style="margin-top:8px">${NR.map(t=>`<p class="sm" style="margin:0 0 8px">${t}</p>`).join("")}</div>
+  </div>`;
+  return h;
+}
+
+
+/* ══════════════════════════════════════════
+   API-FOOTBALL қабаты (v3.0)
+   Кілт тек телефон жадында тұрады, репозиторийде емес.
+   ══════════════════════════════════════════ */
+const AFB="https://v3.football.api-sports.io";
+function afKey(){return ls("afkey","")}
+function afProxy(){return ls("afproxy","")}
+function afOn(){return !!(afKey()||afProxy())}
+function afQuota(){
+  const q=ls("afq",{d:"",n:0}), t=new Date().toISOString().slice(0,10);
+  if(q.d!==t){q.d=t;q.n=0;save("afq",q)}
+  return q;
+}
+async function afRaw(path){
+  const key=afKey(), px=afProxy();
+  if(!key&&!px)return null;
+  const q=afQuota();
+  if(q.n>=95)throw new Error("Тәуліктік лимит бітті (95/100)");
+  const url=(px?px.replace(/\/+$/,""):AFB)+path;
+  const r=await fetch(url, px?{}:{headers:{"x-apisports-key":key}});
+  q.n++;save("afq",q);
+  if(r.status===499||r.status===403)throw new Error("Кілт қабылданбады");
+  if(!r.ok)throw new Error("API-Football "+r.status);
+  const j=await r.json();
+  const er=j.errors;
+  if(er&&!Array.isArray(er)&&Object.keys(er).length)throw new Error(String(Object.values(er)[0]));
+  return j.response||[];
+}
+async function afCached(path,ttl,distill){
+  const ck="af."+path;
+  const c=cget(ck,ttl);
+  if(c)return c;
+  const raw=await afRaw(path);
+  if(raw==null)return null;
+  const o=distill?distill(raw):raw;
+  cset(ck,o);
+  return o;
+}
+
+/* атауды салыстыру — ESPN мен API-Football аттары бірдей емес */
+function nrm(x){
+  return String(x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/\b(fc|cf|sc|ac|as|afc|cd|sv|ss|us|ud|sd|club|de|do|da|the)\b/g," ")
+    .replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim();
+}
+function simil(a,b){
+  const A=nrm(a).split(" ").filter(Boolean), B=nrm(b).split(" ").filter(Boolean);
+  if(!A.length||!B.length)return 0;
+  let h=0;
+  A.forEach(x=>{if(B.some(y=>y===x||(x.length>3&&y.indexOf(x)===0)||(y.length>3&&x.indexOf(y)===0)))h++});
+  return h/Math.max(A.length,B.length);
+}
+/* бір тәуліктің бүкіл ойыны — 1 сұраныс, сосын кэш */
+async function afDay(ymdS){
+  const d=ymdS.slice(0,4)+"-"+ymdS.slice(4,6)+"-"+ymdS.slice(6,8);
+  return afCached("/fixtures?date="+d, 4*3600*1000, raw=>raw.map(f=>({
+    id:f.fixture.id, ref:f.fixture.referee||null,
+    vn:(f.fixture.venue&&f.fixture.venue.name)||null,
+    vc:(f.fixture.venue&&f.fixture.venue.city)||null,
+    h:f.teams.home.name, a:f.teams.away.name,
+    hId:f.teams.home.id, aId:f.teams.away.id,
+    lg:f.league.name, ctry:f.league.country, season:f.league.season, lgId:f.league.id
+  })));
+}
+async function afMatch(e){
+  const list=await afDay(e.ymd);
+  if(!list||!list.length)return null;
+  let best=null,bs=0;
+  list.forEach(f=>{
+    const sh=simil(e.hN,f.h), sa=simil(e.aN,f.a);
+    if(sh<0.25||sa<0.25)return;
+    const sc=(sh+sa)/2;
+    if(sc>bs){bs=sc;best=f}
+  });
+  return bs>=0.42?best:null;
+}
+async function afExtras(fx){
+  const out={fx};
+  const day=30*24*3600*1000, hour=60*60*1000;
+  const jobs=[
+    ["inj","/injuries?fixture="+fx.id, 2*hour, r=>r.map(x=>({
+      t:x.team&&x.team.name, n:x.player&&x.player.name,
+      ty:(x.player&&x.player.type)||"", rz:(x.player&&x.player.reason)||""}))],
+    ["lu","/fixtures/lineups?fixture="+fx.id, 20*60*1000, r=>r.map(x=>({
+      t:x.team&&x.team.name, f:x.formation,
+      xi:(x.startXI||[]).map(p=>p.player&&p.player.name).filter(Boolean),
+      coach:(x.coach&&x.coach.name)||""}))],
+    ["pr","/predictions?fixture="+fx.id, 6*hour, r=>{
+      const x=r[0]; if(!x)return null;
+      const P=x.predictions||{};
+      return{h:P.percent&&P.percent.home, d:P.percent&&P.percent.draw, a:P.percent&&P.percent.away,
+        adv:P.advice||"", uo:P.under_over||null, goals:P.goals||null};
+    }]
+  ];
+  await Promise.all(jobs.map(async j=>{
+    try{out[j[0]]=await afCached(j[1],j[2],j[3])}catch(err){out[j[0]]=null;out.err=err.message}
+  }));
+  return out;
+}
+
+function afHTML(x,e){
+  if(!x||!x.fx)return "";
+  const f=x.fx;
+  let h=`<div class="card"><h3>СТАДИОН ЖӘНЕ ТӨРЕШІ</h3><div class="in">
+    ${f.vn?`<div class="kv"><span>Стадион</span><b class="sm">${esc(f.vn)}</b></div>`:""}
+    ${f.vc?`<div class="kv"><span>Қала</span><b class="sm">${esc(f.vc)}</b></div>`:""}
+    <div class="kv"><span>Турнир</span><b class="sm">${esc(f.lg)}${f.ctry?" · "+esc(f.ctry):""}</b></div>
+    <div class="kv"><span>Төреші</span><b class="sm">${f.ref?esc(f.ref):"әлі тағайындалмаған"}</b></div>`;
+  if(f.ref){
+    const rs=refStats(f.ref);
+    h+=`<p class="xs mut" style="margin:9px 0 0">${rs?`${rs.m} ойында орташа ${(rs.y/rs.m).toFixed(1)} сары қағаз көрсеткен.`:"Бұл төрешінің тарихы жиналуда — 3 ойыннан кейін қағаз болжамына қосылады."}</p>`;
+  }
+  h+=`</div></div>`;
+
+  if(x.lu&&x.lu.length){
+    h+=`<div class="card"><h3>ЖАРИЯЛАНҒАН ҚҰРАМ</h3><div class="in">`;
+    x.lu.forEach(t=>{
+      h+=`<div style="margin-bottom:10px"><div class="sm" style="font-weight:600">${esc(t.t)} <span class="mut xs">${esc(t.f||"")}</span></div>
+        <div class="xs mut" style="margin-top:4px">${t.xi.map(esc).join(" · ")}</div>
+        ${t.coach?`<div class="xs mut" style="margin-top:3px">Бапкер: ${esc(t.coach)}</div>`:""}</div>`;
+    });
+    h+=`<p class="xs mut" style="margin:0">Құрам әдетте ойынға 1 сағат қалғанда жарияланады.</p></div></div>`;
+  }
+
+  if(x.inj&&x.inj.length){
+    const by={};
+    x.inj.forEach(i=>{(by[i.t]=by[i.t]||[]).push(i)});
+    h+=`<div class="card"><h3>ЖАРАҚАТ ЖӘНЕ ДИСКВАЛИФИКАЦИЯ</h3><div class="in">`;
+    Object.keys(by).forEach(t=>{
+      h+=`<div style="margin-bottom:9px"><div class="sm" style="font-weight:600;margin-bottom:4px">${esc(t)} — ${by[t].length}</div>`+
+        by[t].map(i=>`<div class="kv"><span class="sm">${esc(i.n)}</span><b class="sm">${esc(i.rz||i.ty)}</b></div>`).join("")+`</div>`;
+    });
+    h+=`</div></div>`;
+  }
+
+  if(x.pr&&(x.pr.h||x.pr.a)){
+    h+=`<div class="card"><h3>ЕКІНШІ ПІКІР · API-FOOTBALL</h3><div class="in">
+      <div class="kv"><span>Олардың пайызы (1 / X / 2)</span><b>${esc(x.pr.h||"–")} / ${esc(x.pr.d||"–")} / ${esc(x.pr.a||"–")}</b></div>
+      ${x.pr.adv?`<div class="kv"><span>Кеңесі</span><b class="sm">${esc(x.pr.adv)}</b></div>`:""}
+      ${x.pr.goals?`<div class="kv"><span>Күтілетін гол</span><b>${esc(x.pr.goals.home||"–")} / ${esc(x.pr.goals.away||"–")}</b></div>`:""}
+      <p class="xs mut" style="margin:9px 0 0">Бұл — бөлек модель. Біздікімен қатты айырылса, ойын шынымен белгісіз деген сөз.</p>
+    </div></div>`;
+  }
+  if(x.err)h+=`<p class="xs mut" style="margin:0 16px 10px">API-Football: ${esc(x.err)}</p>`;
+  return h;
+}
+
+
+/* ══════════════════════════════════════════
+   ЭКСПРЕСС ҚҰРАСТЫРҒЫШ (v6.0)
+   Мақсат: берілген коэффициентке ықтималдықтан ең аз жоғалтып жету.
+   Таңдау критерийі: log(p)/log(o) — бір бірлік коэффициент үшін
+   қанша ықтималдық құрбан болатынын өлшейді.
+   ══════════════════════════════════════════ */
+let expBusy=false;
+function expTarget(){return ls("exptarget",70)}
+function expLegs(){return ls("explegs",6)}
+
+function candidates(e,m){
+  const c=[], O=e.odds||{};
+  const add=(k,label,p,o,real)=>{
+    if(!o||o<=1.01||!isFinite(o))return;
+    if(p<0.30||p>0.97)return;
+    c.push({k,label,p,o,real,e});
+  };
+  add("1",e.hN+" жеңеді",m.p1,O.oh,true);
+  add("2",e.aN+" жеңеді",m.p2,O.oa,true);
+  add("X","Тең ойын",m.px,O.od,true);
+  // қос мүмкіндік — нарық ықтималдығынан шығарылады (маржасы сақталады)
+  if(O.h!=null&&O.d!=null)add("1X",e.hN+" ұтылмайды",m.p1+m.px,1/(O.h+O.d),false);
+  if(O.d!=null&&O.a!=null)add("X2",e.aN+" ұтылмайды",m.px+m.p2,1/(O.d+O.a),false);
+  if(O.h!=null&&O.a!=null)add("12","Тең болмайды",m.p1+m.p2,1/(O.h+O.a),false);
+  // тотал — нарық коэффициенті жоқ, әділ бағаға 6% маржа қосылады
+  add("O2.5","2.5-тен көп гол",m.o25,0.94/m.o25,false);
+  add("U2.5","2.5-тен аз гол",m.u25,0.94/m.u25,false);
+  return c;
+}
+
+async function buildExpress(){
+  if(expBusy)return;
+  expBusy=true;
+  const box=document.getElementById("expbody");
+  const T=expTarget(), MAXL=expLegs();
+  const set=t=>box.innerHTML='<div class="load">'+t+'</div>';
+  try{
+    if(SRC()!=="ss"){set("");box.innerHTML='<div class="empty"><b>SStats керек</b>Экспресс құрастырғыш коэффициенттерге сүйенеді — Баптаудан SStats дереккөзін қос.</div>';expBusy=false;return}
+    set("Күннің ойындары алынуда…");
+    const evs=(await ssDay(S.day)).filter(e=>e.state==="pre");
+    if(!evs.length){box.innerHTML='<div class="empty"><b>Болатын ойын жоқ</b>Басқа күнді таңда.</div>';expBusy=false;return}
+
+    const fav=ssFavSet();
+    let pool2=evs;
+    if(fav.length)pool2=evs.filter(e=>fav.indexOf(e.lg)>-1);
+    if(pool2.length<6)pool2=evs;
+    // лигаларды басымдық бойынша сұрыптап, ең үздік 12-сін аламыз
+    const byLg={};
+    pool2.forEach(e=>{(byLg[e.lg]=byLg[e.lg]||{id:e.lg,n:e.lgShort,c:e.lgCountry,list:[]}).list.push(e)});
+    const lgs=Object.values(byLg).sort((a,b)=>lgRank(a.n,a.c)-lgRank(b.n,b.c)).slice(0,12);
+
+    const cands=[];
+    for(let i=0;i<lgs.length;i++){
+      const L=lgs[i];
+      set("Лига модельдері құрылуда… "+(i+1)+"/"+lgs.length+"<br><span class='xs'>"+esc(L.n)+"</span>");
+      let F=null;
+      try{
+        const ms=await ssLeagueMatches(L.id,L.list[0].season);
+        if(ms&&ms.length>=50)F=fitDC(ms);
+      }catch(err){}
+      if(!F)continue;
+      L.list.forEach(e=>{
+        const Λ=fitLambdas(F,e.hId,e.aId);
+        if(!Λ)return;
+        const m=model([],[],{nm:12,hfa:S.hfa,aId:e.aId,force:{lh:Λ.lh,la:Λ.la,rho:Λ.rho,n:F.n}});
+        if(!m)return;
+        candidates(e,m).forEach(c=>{c.lg=L.id;c.lgN=L.n;cands.push(c)});
+      });
+    }
+    if(!cands.length){box.innerHTML='<div class="empty"><b>Үміткер табылмады</b>Бұл күні модель құруға жеткілікті мұрағаты бар лига жоқ.</div>';expBusy=false;return}
+
+    /* ── таңдау: log(p)/log(o) бойынша, бір ойыннан бір аяқ, бір лигадан 2 аяқтан аспау ── */
+    cands.forEach(c=>{c.score=Math.log(c.p)/Math.log(c.o); c.edge=c.p*c.o-1});
+    cands.sort((a,b)=>b.score-a.score);
+    const legs=[],usedM={},usedL={};
+    let O=1,P=1;
+    const free=c=>!usedM[c.e.id]&&(usedL[c.lg]||0)<2;
+    while(legs.length<MAXL&&O<T){
+      const R=T/O;
+      const avail=cands.filter(free);
+      if(!avail.length)break;
+      /* мақсатты жабатын аяқтар болса — солардың ішінен ықтималдығы ең жоғарысын
+         аламыз. Бұл коэффициентті мақсаттан алшақ асырмай, дәл үстіне түсіреді. */
+      const fin=avail.filter(c=>c.o>=R);
+      const c=fin.length
+        ? fin.reduce((a,b)=>b.p>a.p?b:a)
+        : avail.reduce((a,b)=>b.score>a.score?b:a);
+      legs.push(c);usedM[c.e.id]=1;usedL[c.lg]=(usedL[c.lg]||0)+1;
+      O*=c.o;P*=c.p;
+    }
+    /* мақсатқа жетпесе — коэффициенті жоғары аяқтармен толықтырамыз */
+    if(O<T){
+      const rest=cands.filter(c=>!usedM[c.e.id]).sort((a,b)=>b.o-a.o);
+      for(const c of rest){
+        if(O>=T||legs.length>=MAXL+2)break;
+        if(usedM[c.e.id])continue;
+        legs.push(c);usedM[c.e.id]=1;O*=c.o;P*=c.p;
+      }
+    }
+    box.innerHTML=expressHTML(legs,O,P,T);
+  }catch(err){
+    box.innerHTML='<div class="empty"><b>Құрастыру аяқталмады</b>'+esc(err.message)+'</div>';
+  }
+  expBusy=false;
+}
+
+function expressHTML(legs,O,P,T){
+  const ev=P*O-1;
+  const once=Math.round(1/P);
+  let h=`<div class="stamp" style="margin:14px 16px">
+    <div class="lb">ЭКСПРЕСС · ${legs.length} АЯҚ</div>
+    <div class="vl">${O.toFixed(2)} коэффициент</div>
+    <div class="nt">Ұту ықтималдығы ${(P*100).toFixed(2)}% — орта есеппен әр <b>${once}</b> экспресстің біреуі ұтады.</div>
+  </div>`;
+
+  h+=`<div class="card" style="border-color:${ev>=0?"var(--pitch)":"var(--stamp)"}"><h3>КҮТІЛЕТІН ҚАЙТАРЫМ</h3><div class="in">
+    <div class="kv"><span>Салған әр 1000 ₸-ден қайтады</span><b style="color:${ev>=0?"var(--pitch)":"var(--stamp)"}">${Math.round((1+ev)*1000)} ₸</b></div>
+    <div class="kv"><span>Математикалық үстеме</span><b style="color:${ev>=0?"var(--pitch)":"var(--stamp)"}">${(ev*100).toFixed(1)}%</b></div>
+    <p class="xs mut" style="margin:9px 0 0">${ev>=0
+      ? "Модель бойынша бұл экспресс оң күтілімде. Бірақ модель қателессе, теріске айналады — 1.4% ықтималдықта қателік өте қымбат."
+      : "Теріс күтілім: ұзақ мерзімде әрбір экспресстен осы пайыз жоғалады. Бұл модельдің кемшілігі емес — экспресстің табиғаты сондай, маржа әр аяқта қайталанады."}</p>
+  </div></div>`;
+
+  h+=`<div class="sec"><div class="sec-h"><span class="t">АЯҚТАРЫ</span><span class="ln"></span><span class="c">${legs.length}</span></div>`;
+  legs.forEach((c,i)=>{
+    h+=`<div class="mrow" style="cursor:default;grid-template-columns:26px 1fr auto">
+      <span class="tm">${i+1}</span>
+      <span class="tt">${esc(c.e.hN)} — ${esc(c.e.aN)}
+        <span class="lg">${c.e.hm} · ${esc(c.lgN)} · <b style="color:var(--stamp)">${esc(c.label)}</b>${c.real?"":" <span class='mut'>(есептелген)</span>"}</span></span>
+      <span class="p3"><s class="hi">${c.o.toFixed(2)}</s><s>${pct(c.p)}%</s></span></div>`;
+  });
+  h+=`</div>`;
+
+  const best=legs.slice().sort((a,b)=>b.edge-a.edge)[0];
+  h+=`<div class="card"><h3>ЕГЕР ЖЕКЕ ТІКСЕҢ</h3><div class="in">
+    <div class="kv"><span>Ең тиімді жалғыз аяқ</span><b class="sm">${esc(best.label)}</b></div>
+    <div class="kv"><span>Оның коэффициенті мен пайызы</span><b>${best.o.toFixed(2)} · ${pct(best.p)}%</b></div>
+    <div class="kv"><span>Күтілетін үстемесі</span><b style="color:${best.edge>=0?"var(--pitch)":"var(--stamp)"}">${(best.edge*100).toFixed(1)}%</b></div>
+    <p class="xs mut" style="margin:9px 0 0">Бір аяқты тіккенде маржа бір-ақ рет алынады. ${legs.length} аяқты экспрессте ол ${legs.length} рет қайталанады — сондықтан бірдей модельмен жеке ставкалар әрқашан тиімдірек.</p>
+  </div></div>`;
+
+  h+=`<div style="margin:14px 16px 30px"><button class="btn-fill" onclick="buildExpress()">Қайта құрастыру</button></div>`;
+  return h;
+}
+
+function openExpress(){
+  openFull("f-express");
+  const b=document.getElementById("expbody");
+  const chips=(id,vals,cur,fn)=>vals.map(v=>`<button class="chip${v==cur?" on":""}" onclick="${fn}(${v})">${v}</button>`).join("");
+  document.getElementById("expctl").innerHTML=
+    `<div class="sm" style="font-weight:600;margin:2px 0 5px">Мақсат коэффициент</div>
+     <div style="display:flex;gap:6px;flex-wrap:wrap">${chips("t",[5,10,30,70,150],expTarget(),"setExpT")}</div>
+     <div class="sm" style="font-weight:600;margin:12px 0 5px">Аяқ саны (ең көбі)</div>
+     <div style="display:flex;gap:6px;flex-wrap:wrap">${chips("l",[3,4,5,6,8],expLegs(),"setExpL")}</div>
+     <button class="btn-fill" style="margin-top:12px" onclick="buildExpress()">Құрастыру</button>`;
+  b.innerHTML=`<div class="empty"><b>Дайын</b>Мақсатты таңдап, «Құрастыру» түймесін бас. Лига модельдері бірінші рет 15–30 секунд алады.</div>`;
+}
+function setExpT(v){save("exptarget",v);openExpress()}
+function setExpL(v){save("explegs",v);openExpress()}
+
+/* ══════════════ БОЛЖАМДАРЫМ ══════════════ */
+async function renderSaved(){
+  const b=document.getElementById("savedbody");
+  if(!S.saved.length){b.innerHTML=`<div class="empty"><b>Әзірге бос</b>Ойынды ашып, болжамды сақтасаң — осында нәтижемен салыстырылады.</div>`;return}
+  const done=S.saved.filter(x=>x.ok!==null);
+  const hit=done.filter(x=>x.ok).length;
+  const acc=done.length?Math.round(hit/done.length*100):null;
+  let h=`<div class="card"><h3>ДӘЛДІГІМ</h3><div class="in"><div class="grid2">
+    <div class="cell"><div class="l">Тексерілген</div><div class="v">${done.length}</div></div>
+    <div class="cell"><div class="l">Дәлдік</div><div class="v">${acc===null?"—":acc+"%"}</div></div>
+  </div><p class="xs mut" style="margin:10px 0 0">Кездейсоқ таңдау ≈33%. Модель 50%-тан жоғары тұрса, жұмыс істеп тұр деген сөз.</p></div></div>`;
+  h+=`<div class="sec"><div class="sec-h"><span class="t">САҚТАЛҒАН БОЛЖАМДАР</span><span class="ln"></span><span class="c">${S.saved.length}</span></div>`;
+  S.saved.forEach(s=>{
+    const st=s.ok===null?`<s class="wait">күтуде</s>`:s.ok?`<s style="background:var(--pitch);color:#fff;border-color:var(--pitch)">дәл</s>`:`<s style="background:var(--stamp);color:#fff;border-color:var(--stamp)">қате</s>`;
+    h+=`<div class="mrow" style="cursor:default">
+      <span class="tm">${s.pick}<i style="color:var(--ink2)">${pct(s.pp)}%</i></span>
+      <span class="tt">${esc(s.hN)} — ${esc(s.aN)}<span class="lg">${fmtDate(s.ymd)} · ${esc(s.lgName||LGNAME[s.lg]||s.lg)}${s.act?" · нәтиже "+s.act:""}</span></span>
+      <span class="p3">${st}</span></div>`;
+  });
+  h+=`</div><div style="margin:16px"><button class="btn-ol" style="width:100%" onclick="clearSaved()">Тізімді тазалау</button></div>`;
+  b.innerHTML=h;
+  gradeSaved();
+}
+function clearSaved(){if(!confirm("Барлық сақталған болжам өшірілсін бе?"))return;S.saved=[];save("saved",S.saved);renderSaved()}
+
+async function gradeSaved(){
+  const pend=S.saved.filter(x=>x.ok===null&&x.ymd<=ymd(new Date()));
+  if(!pend.length)return;
+  let ch=0;
+  await pool(pend.slice(0,12),4,async s=>{
+    try{
+      const evs=s.src==="ss"?await ssDay(s.ymd):await getDay(s.lg,s.ymd);
+      const e=evs.find(x=>String(x.id)===String(s.id));
+      if(!e||!e.done)return;
+      const hs=Number(e.hS),as=Number(e.aS);
+      if(!isFinite(hs)||!isFinite(as))return;
+      s.act=hs+":"+as;
+      const real=hs>as?"1":hs===as?"X":"2";
+      s.ok=real===s.pick;ch++;
+    }catch(err){}
+  });
+  if(ch){save("saved",S.saved);renderSaved()}
+}
+
+/* ══════════════ ЛИГАЛАР ══════════════ */
+async function openLeagues(){
+  openFull("f-leagues");
+  if(SRC()==="ss"){
+    document.getElementById("lglist").innerHTML='<div class="load">Лига каталогы жүктелуде…</div>';
+    try{await ssLeaguesAll()}catch(e){
+      document.getElementById("lglist").innerHTML='<div class="empty"><b>Каталог келмеді</b>'+esc(e.message)+'</div>';return;
+    }
+  }
+  renderLeagues();
+}
+function renderLeagues(){
+  const q=(document.getElementById("lgq").value||"").toLowerCase().trim();
+  if(SRC()==="ss"){
+    const fav=ssFavSet();
+    let L=(SSLG||[]).filter(x=>!q||x.n.toLowerCase().includes(q)||String(x.c).toLowerCase().includes(q));
+    const favRows=L.filter(x=>fav.indexOf(x.id)>-1);
+    L=L.filter(x=>fav.indexOf(x.id)<0).slice(0,400);
+    const rw=x=>`<button class="lgrow${fav.indexOf(x.id)>-1?" on":""}" onclick="ssFav('${x.id}');renderLeagues()">
+      <span class="bx2">✓</span><span class="n">${esc(x.n)}</span><span class="xs mut">${esc(x.c)}</span></button>`;
+    let h="";
+    if(favRows.length)h+=`<div class="sec"><div class="sec-h"><span class="t">ТАҢДАУЛЫ</span><span class="ln"></span><span class="c">${favRows.length}</span></div>${favRows.map(rw).join("")}</div>`;
+    h+=`<div class="sec"><div class="sec-h"><span class="t">${q?"ТАБЫЛҒАНЫ":"КҮШТІ ЛИГАЛАР АЛДЫМЕН"}</span><span class="ln"></span></div>${L.map(rw).join("")}</div>`;
+    document.getElementById("lglist").innerHTML=L.length||favRows.length?h:`<div class="empty"><b>Табылмады</b>Басқа сөзбен іздеп көр.</div>`;
+    document.getElementById("lgcount").textContent=fav.length+" таңдалды";
+    return;
+  }
+  let h="";
+  LG.forEach(g=>{
+    const items=g[1].filter(l=>!q||l[1].toLowerCase().includes(q)||l[0].includes(q));
+    if(!items.length)return;
+    h+=`<div class="sec"><div class="sec-h"><span class="t">${esc(g[0].toUpperCase())}</span><span class="ln"></span></div>`;
+    items.forEach(l=>{
+      const on=S.leagues.includes(l[0]);
+      h+=`<button class="lgrow${on?" on":""}" onclick="toggleLeague('${l[0]}');renderLeagues()">
+        <span class="bx2">✓</span><span class="n">${esc(l[1])}</span><span class="xs mut">${l[0]}</span></button>`;
+    });
+    h+=`</div>`;
+  });
+  document.getElementById("lglist").innerHTML=h||`<div class="empty"><b>Табылмады</b>Басқа сөзбен іздеп көр.</div>`;
+  document.getElementById("lgcount").textContent=S.leagues.length+" таңдалды";
+}
+function toggleLeague(l){
+  const i=S.leagues.indexOf(l);
+  if(i<0)S.leagues.push(l);else S.leagues.splice(i,1);
+  save("leagues",S.leagues);renderChips();renderDays();
+}
+
+/* ══════════════ НАВИГАЦИЯ ══════════════ */
+function go(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.toggle("on",p.id===id));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.t===id));
+  save("tab",id);
+  window.scrollTo(0,0);
+  if(id==="p-saved")renderSaved();
+  if(id==="p-set"){cacheSize();afqShow()}
+}
+function openFull(id){
+  document.getElementById(id).classList.add("on");
+  history.pushState({full:id},"");
+}
+function closeFull(id){
+  document.getElementById(id).classList.remove("on");
+  if(history.state&&history.state.full===id)history.back();
+}
+let backTs=0;
+window.addEventListener("popstate",()=>{
+  const op=[...document.querySelectorAll(".full.on")];
+  if(op.length){op[op.length-1].classList.remove("on");return}
+  const now=Date.now();
+  if(now-backTs<2200){history.back();return}
+  backTs=now;toast("Шығу үшін тағы бір рет бас");
+  history.pushState({root:1},"");
+});
+
+/* ══════════════ БАПТАУ ══════════════ */
+document.getElementById("hfa").addEventListener("input",e=>{
+  S.hfa=+e.target.value;document.getElementById("hfaVal").textContent=S.hfa.toFixed(2);save("hfa",S.hfa);
+});
+document.getElementById("leaguefit").checked=!!ls("leaguefit",1);
+document.getElementById("leaguefit").addEventListener("change",e=>save("leaguefit",e.target.checked?1:0));
+document.getElementById("autodeep").checked=!!ls("autodeep",1);
+document.getElementById("autodeep").addEventListener("change",e=>save("autodeep",e.target.checked?1:0));
+document.getElementById("nm").addEventListener("input",e=>{
+  S.nm=+e.target.value;document.getElementById("nmVal").textContent=S.nm;save("nm",S.nm);
+});
+
+/* ══════════════ БАСТАУ ══════════════ */
+(function init(){
+  document.getElementById("sskey").value=ssKey();
+  document.getElementById("srcsel").value=SRC();
+  document.getElementById("afkey").value=afKey();
+  document.getElementById("afproxy").value=afProxy();
+  document.getElementById("hfa").value=S.hfa;
+  document.getElementById("hfaVal").textContent=Number(S.hfa).toFixed(2);
+  document.getElementById("nm").value=S.nm;
+  document.getElementById("nmVal").textContent=S.nm;
+  history.replaceState({root:1},"");
+  renderDays();renderChips();
+  const t=ls("tab","p-games");go(t);
+  loadGames();
+  setTimeout(()=>document.getElementById("splash").classList.add("off"),700);
+  if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+  document.addEventListener("visibilitychange",()=>{
+    if(!document.hidden&&S.day===ymd(new Date())&&document.getElementById("p-games").classList.contains("on"))loadGames();
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "BOLZHAM — футбол болжамы",
+  "short_name": "BOLZHAM",
+  "description": "Әлемдегі футбол ойындарына Пуассон моделімен ықтималдық болжамы",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#EDE9DE",
+  "theme_color": "#EDE9DE",
+  "lang": "kk",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Бүгінгі ойындар", "url": "./index.html?t=games" },
+    { "name": "Болжамдарым", "url": "./index.html?t=saved" }
+  ]
+}
